@@ -9,6 +9,7 @@
     nextId: 1,
     polling: null,
     runtimeReady: false,
+    boxModel: false,
   };
 
   // ─── Eval helpers ─────────────────────────────────────────────────────────
@@ -281,12 +282,38 @@
     });
   }
 
+  // ─── Box model overlay ────────────────────────────────────────────────────
+
+  function showBoxModel() {
+    evalInPage(
+      '(function(){if(!$0)return null;var r=$0.getBoundingClientRect();var s=window.getComputedStyle($0);return JSON.stringify({x:r.left,y:r.top,w:r.width,h:r.height,pt:parseFloat(s.paddingTop),pr:parseFloat(s.paddingRight),pb:parseFloat(s.paddingBottom),pl:parseFloat(s.paddingLeft),bt:parseFloat(s.borderTopWidth),br:parseFloat(s.borderRightWidth),bb:parseFloat(s.borderBottomWidth),bl:parseFloat(s.borderLeftWidth),mt:parseFloat(s.marginTop),mr:parseFloat(s.marginRight),mb:parseFloat(s.marginBottom),ml:parseFloat(s.marginLeft)});})();',
+      function (json) {
+        if (!json || json === 'null') return;
+        evalInPage('__RulerLines.setBoxModel(' + json + ')');
+      }
+    );
+  }
+
   // ─── Init ─────────────────────────────────────────────────────────────────
 
   document.getElementById('btn-add-h').addEventListener('click', function () { addGuide('h'); });
   document.getElementById('btn-add-v').addEventListener('click', function () { addGuide('v'); });
   document.getElementById('btn-add-box').addEventListener('click', addBox);
   document.getElementById('btn-clear-all').addEventListener('click', clearAll);
+
+  document.getElementById('btn-box-model').addEventListener('click', function () {
+    state.boxModel = !state.boxModel;
+    this.classList.toggle('active', state.boxModel);
+    if (state.boxModel) {
+      showBoxModel();
+    } else {
+      evalInPage('__RulerLines.clearBoxModel()');
+    }
+  });
+
+  chrome.devtools.panels.elements.onSelectionChanged.addListener(function () {
+    if (state.boxModel) showBoxModel();
+  });
 
   renderGuideList();
 })();

@@ -40,6 +40,11 @@ button:active {
   background: #222;
 }
 
+#btn-box-model.active {
+  background: #4a9eff;
+  color: #fff;
+}
+
 #btn-clear-all {
   margin-left: auto;
   color: #888;

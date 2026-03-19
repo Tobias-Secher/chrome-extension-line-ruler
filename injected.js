@@ -444,6 +444,7 @@
   window.__RulerLines = {
     isDragging: false,
     pendingUpdate: null,
+    _bmEls: [],
 
     // ── Guide methods ──
 
@@ -531,6 +532,59 @@
 
     clearPendingUpdate: function () {
       this.pendingUpdate = null;
+    },
+
+    // ── Box model overlay ──
+
+    setBoxModel: function (d) {
+      this._bmEls.forEach(function (el) { el.parentNode && el.parentNode.removeChild(el); });
+      this._bmEls = [];
+
+      var layers = [
+        {
+          t: d.y - d.mt, l: d.x - d.ml,
+          w: d.w + d.ml + d.mr, h: d.h + d.mt + d.mb,
+          bg: 'rgba(248,192,125,0.2)',
+        },
+        {
+          t: d.y, l: d.x, w: d.w, h: d.h,
+          bg: 'rgba(255,232,163,0.2)',
+        },
+        {
+          t: d.y + d.bt, l: d.x + d.bl,
+          w: d.w - d.bl - d.br, h: d.h - d.bt - d.bb,
+          bg: 'rgba(147,196,125,0.2)',
+        },
+        {
+          t: d.y + d.bt + d.pt, l: d.x + d.bl + d.pl,
+          w: d.w - d.bl - d.br - d.pl - d.pr,
+          h: d.h - d.bt - d.bb - d.pt - d.pb,
+          bg: 'rgba(111,168,220,0.2)',
+        },
+      ];
+
+      var self = this;
+      layers.forEach(function (layer, i) {
+        var el = document.createElement('div');
+        el.className = '__rl-bm';
+        el.style.cssText = [
+          'position:fixed',
+          'top:' + layer.t + 'px',
+          'left:' + layer.l + 'px',
+          'width:' + Math.max(0, layer.w) + 'px',
+          'height:' + Math.max(0, layer.h) + 'px',
+          'background:' + layer.bg,
+          'pointer-events:none',
+          'z-index:' + (2147483640 + i),
+        ].join(';');
+        host.appendChild(el);
+        self._bmEls.push(el);
+      });
+    },
+
+    clearBoxModel: function () {
+      this._bmEls.forEach(function (el) { el.parentNode && el.parentNode.removeChild(el); });
+      this._bmEls = [];
     },
   };
 })();
