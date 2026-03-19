@@ -10,6 +10,7 @@
     polling: null,
     runtimeReady: false,
     boxModel: false,
+    crosshair: false,
   };
 
   // ─── Eval helpers ─────────────────────────────────────────────────────────
@@ -309,6 +310,12 @@
     } else {
       evalInPage('__RulerLines.clearBoxModel()');
     }
+  });
+
+  document.getElementById('btn-crosshair').addEventListener('click', function () {
+    state.crosshair = !state.crosshair;
+    this.classList.toggle('active', state.crosshair);
+    evalInPage('__RulerLines.setCrosshair(' + state.crosshair + ')');
   });
 
   chrome.devtools.panels.elements.onSelectionChanged.addListener(function () {
