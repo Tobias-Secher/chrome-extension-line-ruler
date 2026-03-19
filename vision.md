@@ -23,7 +23,7 @@ There is no native, lightweight, interactive guide line tool that lives inside t
 
 ## What It Is
 
-Ruler Lines is a Chrome DevTools extension that lets developers place draggable, colored horizontal and vertical guide lines directly on top of any webpage — without interrupting the ability to interact with the page itself.
+Ruler Lines is a Chrome DevTools extension that lets developers place draggable guide lines and resizable measurement boxes directly on top of any webpage — without interrupting the ability to interact with the page itself.
 
 It is inspired by the guide line workflow in Figma and traditional design tools, but built specifically for the browser context: live pages, real layout, scrolling content, and responsive viewports.
 
@@ -43,7 +43,7 @@ When you place a guide at 300px from the top of the viewport, it stays at 300px 
 
 ### 3. The page stays interactive
 
-The guides container uses `pointer-events: none` at the root level. Only the thin 1px drag handles on each guide re-enable pointer events. This means you can still click links, fill forms, interact with dropdowns, and use the page normally while guides are active. The tool is invisible to page functionality.
+The guides container uses `pointer-events: none` at the root level. Only the drag handles on guides and the interactive areas of measurement boxes re-enable pointer events. This means you can still click links, fill forms, interact with dropdowns, and use the page normally while guides are active. The tool is invisible to page functionality.
 
 ### 4. No configuration required
 
@@ -62,7 +62,13 @@ There is no setup, no API key, no project config. Open DevTools, open the Ruler 
 - **Clear all lines** — a single action removes all guides at once
 - **Draggable guides** — click and drag any guide to reposition it; coordinate updates in real time
 - **Coordinate display** — each guide shows its current position (in px) either in the panel or as a label on the guide itself
-- **In-DOM injection** — rulers and guides are part of the DOM, not a detached canvas overlay
+- **Add measurement boxes** — place a draggable, resizable rectangular overlay centered in the viewport; useful for overlaying a region of the page to compare dimensions against design specs
+- **Per-box color picker** — each box gets a unique color by default; changeable per-box
+- **Dimension label** — each box displays its current width × height in pixels
+- **Draggable boxes** — drag from the box interior to reposition; coordinates update in real time
+- **Resizable boxes** — 8-point resize handles (4 corners + 4 edges) with live dimension feedback
+- **Remove individual boxes** — each box can be deleted independently
+- **In-DOM injection** — rulers, guides, and boxes are part of the DOM, not a detached canvas overlay
 - **DevTools panel** — the control surface lives in a dedicated Chrome DevTools panel, separate from the page
 
 ### Phase 2 — Measurement & Precision
@@ -130,6 +136,7 @@ Secondary users include **designers who can inspect code** and want to do quick 
 | --------------------------- | ------------------------------------------ | -------------------------------------------------- |
 | Ruler chrome (tick bars)    | In-DOM, `position: sticky`                 | Always visible, never hides page content           |
 | Guide lines                 | In-DOM, `position: fixed`                  | Viewport-relative, scroll-independent              |
+| Measurement boxes           | In-DOM, `position: fixed`                  | Viewport-relative overlays; pointer-events on drag/resize handles only |
 | Page interactivity          | `pointer-events: none` on guides container | Page remains fully usable                          |
 | Control surface             | Chrome DevTools panel (`devtools_page`)    | Native DevTools integration, no popup              |
 | Guide injection             | `chrome.devtools.inspectedWindow.eval()`   | Works without `scripting` permission, bypasses CSP |

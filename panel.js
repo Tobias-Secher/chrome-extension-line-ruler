@@ -5,6 +5,7 @@
 
   const state = {
     guides: [],
+    boxes: [],
     nextId: 1,
     polling: null,
     runtimeReady: false,
@@ -30,7 +31,6 @@
   function evalInPage(expression, callback) {
     chrome.devtools.inspectedWindow.eval(expression, function (result, exceptionInfo) {
       if (exceptionInfo) {
-        // Runtime not present — inject then retry once
         state.runtimeReady = false;
         injectRuntime(function () {
           chrome.devtools.inspectedWindow.eval(expression, function (result2, err2) {
@@ -66,20 +66,66 @@
     state.guides = state.guides.filter(function (g) { return g.id !== id; });
     evalInPage('__RulerLines.removeGuide(' + JSON.stringify(id) + ')');
     renderGuideList();
-    if (state.guides.length === 0) stopPolling();
-  }
-
-  function clearAll() {
-    state.guides = [];
-    evalInPage('__RulerLines.clearAll()');
-    renderGuideList();
-    stopPolling();
+    if (state.guides.length === 0 && state.boxes.length === 0) stopPolling();
   }
 
   function setGuideColor(id, color) {
     const guide = state.guides.find(function (g) { return g.id === id; });
     if (guide) guide.color = color;
     evalInPage('__RulerLines.setColor(' + JSON.stringify(id) + ',' + JSON.stringify(color) + ')');
+  }
+
+  // ─── Box operations ───────────────────────────────────────────────────────
+
+  function addBox() {
+    const id = 'b' + state.nextId++;
+    const w = 200, h = 150;
+    const color = COLORS[(state.nextId - 2) % COLORS.length];
+    // x/y are null — injected.js will center in viewport and return actual coords
+    state.boxes.push({ id, x: null, y: null, w, h, color });
+    evalInPage(
+      'JSON.stringify(__RulerLines.addBox(' +
+        JSON.stringify(id) + ', null, null,' +
+        w + ',' + h + ',' +
+        JSON.stringify(color) +
+      '))',
+      function (json) {
+        // Sync actual centered position back to panel state
+        if (json) {
+          try {
+            var pos = JSON.parse(json);
+            var box = state.boxes.find(function (b) { return b.id === id; });
+            if (box && pos) { box.x = pos.x; box.y = pos.y; }
+          } catch (e) {}
+        }
+      }
+    );
+    renderBoxList();
+    ensurePolling();
+  }
+
+  function removeBox(id) {
+    state.boxes = state.boxes.filter(function (b) { return b.id !== id; });
+    evalInPage('__RulerLines.removeBox(' + JSON.stringify(id) + ')');
+    renderBoxList();
+    if (state.guides.length === 0 && state.boxes.length === 0) stopPolling();
+  }
+
+  function setBoxColor(id, color) {
+    const box = state.boxes.find(function (b) { return b.id === id; });
+    if (box) box.color = color;
+    evalInPage('__RulerLines.setBoxColor(' + JSON.stringify(id) + ',' + JSON.stringify(color) + ')');
+  }
+
+  // ─── Clear all ────────────────────────────────────────────────────────────
+
+  function clearAll() {
+    state.guides = [];
+    state.boxes = [];
+    evalInPage('__RulerLines.clearAll()');
+    renderGuideList();
+    renderBoxList();
+    stopPolling();
   }
 
   // ─── Drag polling ─────────────────────────────────────────────────────────
@@ -94,11 +140,23 @@
           var update;
           try { update = JSON.parse(json); } catch (e) { return; }
           if (!update) return;
-          var guide = state.guides.find(function (g) { return g.id === update.id; });
-          if (guide) {
-            guide.pos = update.pos;
-            updateCoordDisplay(update.id, update.pos);
+
+          if (update.type === 'box') {
+            var box = state.boxes.find(function (b) { return b.id === update.id; });
+            if (box) {
+              box.x = update.x; box.y = update.y;
+              box.w = update.w; box.h = update.h;
+              updateBoxDisplay(update.id, update.w, update.h);
+            }
+          } else {
+            // Guide update (type === 'guide' or absent for safety)
+            var guide = state.guides.find(function (g) { return g.id === update.id; });
+            if (guide) {
+              guide.pos = update.pos;
+              updateCoordDisplay(update.id, update.pos);
+            }
           }
+
           chrome.devtools.inspectedWindow.eval('__RulerLines.clearPendingUpdate()');
         }
       );
@@ -117,16 +175,21 @@
     if (span) span.textContent = pos + 'px';
   }
 
-  // ─── Render ───────────────────────────────────────────────────────────────
+  function updateBoxDisplay(id, w, h) {
+    var span = document.getElementById('box-dim-' + id);
+    if (span) span.textContent = w + ' \u00d7 ' + h;
+  }
+
+  // ─── Render: guides ───────────────────────────────────────────────────────
 
   function renderGuideList() {
     var list = document.getElementById('guide-list');
     list.innerHTML = '';
 
-    if (state.guides.length === 0) {
+    if (state.guides.length === 0 && state.boxes.length === 0) {
       var empty = document.createElement('div');
       empty.className = 'empty-state';
-      empty.textContent = 'No guides yet.\nAdd a horizontal or vertical line above.';
+      empty.textContent = 'Add a guide line or measurement box above.';
       list.appendChild(empty);
       return;
     }
@@ -156,7 +219,7 @@
 
       var removeBtn = document.createElement('button');
       removeBtn.className = 'btn-remove';
-      removeBtn.textContent = '✕';
+      removeBtn.textContent = '\u2715';
       removeBtn.dataset.id = guide.id;
       removeBtn.addEventListener('click', function (e) {
         removeGuide(e.target.dataset.id);
@@ -170,10 +233,59 @@
     });
   }
 
+  // ─── Render: boxes ────────────────────────────────────────────────────────
+
+  function renderBoxList() {
+    var list = document.getElementById('box-list');
+    list.innerHTML = '';
+
+    // Re-check empty state (guides render drives the empty message)
+    renderGuideList();
+
+    state.boxes.forEach(function (box) {
+      var row = document.createElement('div');
+      row.className = 'guide-row box-row';
+      row.dataset.id = box.id;
+
+      var typeLabel = document.createElement('span');
+      typeLabel.className = 'axis-label box-type-label';
+      typeLabel.textContent = 'BOX';
+
+      var dim = document.createElement('span');
+      dim.className = 'coord-display box-dim';
+      dim.id = 'box-dim-' + box.id;
+      dim.textContent = box.w + ' \u00d7 ' + box.h;
+
+      var colorInput = document.createElement('input');
+      colorInput.type = 'color';
+      colorInput.className = 'color-picker';
+      colorInput.value = box.color;
+      colorInput.dataset.id = box.id;
+      colorInput.addEventListener('input', function (e) {
+        setBoxColor(e.target.dataset.id, e.target.value);
+      });
+
+      var removeBtn = document.createElement('button');
+      removeBtn.className = 'btn-remove';
+      removeBtn.textContent = '\u2715';
+      removeBtn.dataset.id = box.id;
+      removeBtn.addEventListener('click', function (e) {
+        removeBox(e.target.dataset.id);
+      });
+
+      row.appendChild(typeLabel);
+      row.appendChild(dim);
+      row.appendChild(colorInput);
+      row.appendChild(removeBtn);
+      list.appendChild(row);
+    });
+  }
+
   // ─── Init ─────────────────────────────────────────────────────────────────
 
   document.getElementById('btn-add-h').addEventListener('click', function () { addGuide('h'); });
   document.getElementById('btn-add-v').addEventListener('click', function () { addGuide('v'); });
+  document.getElementById('btn-add-box').addEventListener('click', addBox);
   document.getElementById('btn-clear-all').addEventListener('click', clearAll);
 
   renderGuideList();

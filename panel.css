@@ -121,3 +121,15 @@ button:active {
   text-align: center;
   line-height: 1.6;
 }
+
+.box-type-label {
+  width: 26px;
+  font-size: 9px;
+}
+
+.box-dim {
+  width: 68px;
+  color: #9cdcfe;
+  flex-shrink: 0;
+  font-variant-numeric: tabular-nums;
+}
