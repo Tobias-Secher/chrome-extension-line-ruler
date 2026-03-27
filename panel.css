@@ -217,6 +217,35 @@ button:active {
   background: var(--bg-panel);
 }
 
+#bp-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+  flex: 1;
+}
+
+#btn-bp-scan {
+  font-size: 11px;
+  padding: 2px 5px;
+  color: var(--text-dim);
+  background: transparent;
+  border-color: transparent;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+#btn-bp-scan:hover {
+  color: var(--text);
+  background: var(--bg-hover);
+  border-color: var(--border);
+}
+
+#bp-label.bp-label-fallback {
+  color: var(--text-dim);
+  text-decoration: underline dotted;
+  cursor: help;
+}
+
 .btn-bp {
   font-family: monospace;
   font-size: 10px;

@@ -73,7 +73,7 @@ There is no setup, no API key, no project config. Open DevTools, open the Ruler 
 - **Ruler visibility toggle** — a toggle switch in the toolbar shows or hides the top and left ruler bars; useful when content at the very edges of the viewport is obscured by the ruler overlay. Rulers are on by default and the toggle reflects their live state
 - **Column grid overlay** — a toggleable column grid rendered directly on the page. Configurable column count (default 12) and gutter gap (default 20px) with a color picker; settings are exposed inline when the grid is active and update the overlay in real time
 - **Distance readout between guides** — distances between adjacent same-axis guide pairs are shown inline between guide rows in the panel and update live as guides are dragged
-- **Breakpoint presets** — a one-click row of standard viewport widths (320, 768, 1024, 1440px) that drops a vertical guide at the chosen position instantly
+- **Breakpoint presets** — a one-click row of breakpoint buttons below the toolbar. On panel open, the page's stylesheets are scanned for `min-width`/`max-width` media query values and used as buttons (capped at 6); falls back to standard defaults (320, 768, 1024, 1440px) with a visual indicator if none are detected. A ↺ button re-scans on demand
 - **Keyboard nudge** — click a guide row in the panel to select it, then reposition with arrow keys (1px) or Shift + arrow keys (10px)
 - **Color eyedropper** — samples any pixel on the page using the browser's native EyeDropper API and copies the hex value to the clipboard, with a brief inline color preview
 - **Font inspector** — a hover tooltip that follows the cursor and displays the font-family, size, weight, and line-height of any element on the page; toggled from the toolbar

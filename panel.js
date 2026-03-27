@@ -498,11 +498,62 @@
 
   // ─── Breakpoint presets ────────────────────────────────────────────────────
 
-  document.querySelectorAll('.btn-bp').forEach(function (btn) {
-    btn.addEventListener('click', function () {
-      addGuideAt('v', parseInt(btn.dataset.pos, 10));
+  var FALLBACK_BREAKPOINTS = [320, 768, 1024, 1440];
+
+  function renderBreakpoints(widths, isFallback) {
+    var container = document.getElementById('bp-buttons');
+    var label = document.getElementById('bp-label');
+    container.innerHTML = '';
+    if (isFallback) {
+      label.title = 'No breakpoints detected — showing defaults';
+      label.classList.add('bp-label-fallback');
+    } else {
+      label.title = '';
+      label.classList.remove('bp-label-fallback');
+    }
+    widths.forEach(function (pos) {
+      var btn = document.createElement('button');
+      btn.className = 'btn-bp';
+      btn.textContent = pos;
+      btn.dataset.pos = pos;
+      btn.addEventListener('click', function () {
+        addGuideAt('v', pos);
+      });
+      container.appendChild(btn);
     });
-  });
+  }
+
+  function scanBreakpoints() {
+    var scanExpr = '(function(){' +
+      'var seen={};var sheets=document.styleSheets;' +
+      'for(var i=0;i<sheets.length;i++){' +
+        'var rules;try{rules=sheets[i].cssRules||sheets[i].rules;}catch(e){continue;}' +
+        'if(!rules)continue;' +
+        'for(var j=0;j<rules.length;j++){' +
+          'var rule=rules[j];' +
+          'var media=rule.conditionText||(rule.media&&rule.media.mediaText)||"";' +
+          'if(media.indexOf("width")===-1)continue;' +
+          'var ms=media.match(/\\d+(?:\\.\\d+)?px/g);' +
+          'if(ms)ms.forEach(function(m){var w=Math.round(parseFloat(m));if(w>=320)seen[w]=true;});' +
+        '}' +
+      '}' +
+      'var sorted=Object.keys(seen).map(Number).sort(function(a,b){return a-b;});' +
+      'return JSON.stringify(sorted.length?sorted:null);' +
+    '})()';
+
+    evalInPage(scanExpr, function (json) {
+      var widths = null;
+      try { widths = json ? JSON.parse(json) : null; } catch (e) {}
+      if (widths && widths.length) {
+        if (widths.length > 6) widths = widths.slice(0, 6);
+        renderBreakpoints(widths, false);
+      } else {
+        renderBreakpoints(FALLBACK_BREAKPOINTS, true);
+      }
+    });
+  }
+
+  document.getElementById('btn-bp-scan').addEventListener('click', scanBreakpoints);
 
   // ─── Keyboard nudge ────────────────────────────────────────────────────────
 
@@ -585,5 +636,6 @@
   // Inject runtime immediately so rulers appear on panel open
   injectRuntime(function () {
     document.getElementById('chk-rulers').checked = true;
+    scanBreakpoints();
   });
 })();
