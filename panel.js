@@ -16,6 +16,9 @@
     gridCols: 12,
     gridGap: 20,
     gridColor: '#4a9eff',
+    spacing: false,
+    fontInspector: false,
+    selectedId: null,
     lastAddedId: null,
   };
 
@@ -151,12 +154,19 @@
     state.boxes = [];
     state.rulers = true;
     state.grid = false;
+    state.spacing = false;
+    state.fontInspector = false;
+    state.selectedId = null;
     document.getElementById('chk-rulers').checked = true;
     document.getElementById('btn-grid').classList.remove('active');
+    document.getElementById('btn-spacing').classList.remove('active');
+    document.getElementById('btn-font').classList.remove('active');
     document.getElementById('grid-settings').classList.add('hidden');
     evalInPage('__RulerLines.clearAll()');
     evalInPage('__RulerLines.setRulers(true)');
     evalInPage('__RulerLines.setGrid(false)');
+    evalInPage('__RulerLines.clearSpacing()');
+    evalInPage('__RulerLines.setFontInspector(false)');
     renderGuideList();
     renderBoxList();
     stopPolling();
@@ -207,6 +217,38 @@
   function updateCoordDisplay(id, pos) {
     var span = document.getElementById('coord-' + id);
     if (span) span.textContent = pos + 'px';
+    updateDistanceRows();
+  }
+
+  function updateDistanceRows() {
+    var hGuides = state.guides.filter(function (g) { return g.axis === 'h'; }).slice().sort(function (a, b) { return a.pos - b.pos; });
+    var vGuides = state.guides.filter(function (g) { return g.axis === 'v'; }).slice().sort(function (a, b) { return a.pos - b.pos; });
+    var ordered = hGuides.concat(vGuides);
+    for (var i = 1; i < ordered.length; i++) {
+      if (ordered[i].axis !== ordered[i - 1].axis) continue;
+      var row = document.querySelector('.distance-row[data-from="' + ordered[i - 1].id + '"][data-to="' + ordered[i].id + '"]');
+      if (row) {
+        var dist = ordered[i].pos - ordered[i - 1].pos;
+        row.textContent = (ordered[i].axis === 'h' ? '\u2195' : '\u2194') + ' ' + dist + 'px';
+      }
+    }
+  }
+
+  function addGuideAt(axis, pos) {
+    var id = 'g' + state.nextId++;
+    var color = COLORS[(state.nextId - 2) % COLORS.length];
+    state.guides.push({ id: id, axis: axis, pos: pos, color: color });
+    state.lastAddedId = id;
+    evalInPage(
+      '__RulerLines.addGuide(' +
+        JSON.stringify(id) + ',' +
+        JSON.stringify(axis) + ',' +
+        pos + ',' +
+        JSON.stringify(color) +
+      ')'
+    );
+    renderGuideList();
+    ensurePolling();
   }
 
   function updateBoxDisplay(id, w, h) {
@@ -238,12 +280,40 @@
       return;
     }
 
-    state.guides.forEach(function (guide) {
+    // Group by axis, sort by pos within each group for distance rows
+    var hGuides = state.guides.filter(function (g) { return g.axis === 'h'; }).slice().sort(function (a, b) { return a.pos - b.pos; });
+    var vGuides = state.guides.filter(function (g) { return g.axis === 'v'; }).slice().sort(function (a, b) { return a.pos - b.pos; });
+    var ordered = hGuides.concat(vGuides);
+
+    ordered.forEach(function (guide, i) {
+      // Distance row between same-axis adjacent guides
+      if (i > 0 && ordered[i - 1].axis === guide.axis) {
+        var dist = guide.pos - ordered[i - 1].pos;
+        var distRow = document.createElement('div');
+        distRow.className = 'distance-row';
+        distRow.dataset.axis = guide.axis;
+        distRow.dataset.from = ordered[i - 1].id;
+        distRow.dataset.to = guide.id;
+        distRow.textContent = (guide.axis === 'h' ? '\u2195' : '\u2194') + ' ' + dist + 'px';
+        list.appendChild(distRow);
+      }
+
       var row = document.createElement('div');
       row.className = 'guide-row';
       row.dataset.id = guide.id;
       row.style.borderLeftColor = guide.color;
       if (guide.id === state.lastAddedId) row.classList.add('row-new');
+      if (guide.id === state.selectedId) row.classList.add('row-selected');
+
+      row.addEventListener('click', function (e) {
+        // Don't trigger selection when clicking color or remove
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'BUTTON') return;
+        var clickedId = row.dataset.id;
+        state.selectedId = state.selectedId === clickedId ? null : clickedId;
+        document.querySelectorAll('.guide-row').forEach(function (r) {
+          r.classList.toggle('row-selected', r.dataset.id === state.selectedId);
+        });
+      });
 
       var axisLabel = document.createElement('span');
       axisLabel.className = 'axis-label';
@@ -343,6 +413,23 @@
 
   // ─── Box model overlay ────────────────────────────────────────────────────
 
+  function showSpacing() {
+    evalInPage(
+      '(function(){' +
+        'if(!$0||!$1)return null;' +
+        'var r0=$0.getBoundingClientRect(),r1=$1.getBoundingClientRect();' +
+        'return JSON.stringify({' +
+          'r0:{x:r0.left,y:r0.top,w:r0.width,h:r0.height},' +
+          'r1:{x:r1.left,y:r1.top,w:r1.width,h:r1.height}' +
+        '});' +
+      '})()',
+      function (json) {
+        if (!json || json === 'null') return;
+        evalInPage('__RulerLines.setSpacing(' + json + ')');
+      }
+    );
+  }
+
   function showBoxModel() {
     evalInPage(
       '(function(){if(!$0)return null;var r=$0.getBoundingClientRect();var s=window.getComputedStyle($0);return JSON.stringify({x:r.left,y:r.top,w:r.width,h:r.height,pt:parseFloat(s.paddingTop),pr:parseFloat(s.paddingRight),pb:parseFloat(s.paddingBottom),pl:parseFloat(s.paddingLeft),bt:parseFloat(s.borderTopWidth),br:parseFloat(s.borderRightWidth),bb:parseFloat(s.borderBottomWidth),bl:parseFloat(s.borderLeftWidth),mt:parseFloat(s.marginTop),mr:parseFloat(s.marginRight),mb:parseFloat(s.marginBottom),ml:parseFloat(s.marginLeft)});})();',
@@ -409,8 +496,87 @@
     if (state.grid) applyGrid();
   });
 
+  // ─── Breakpoint presets ────────────────────────────────────────────────────
+
+  document.querySelectorAll('.btn-bp').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      addGuideAt('v', parseInt(btn.dataset.pos, 10));
+    });
+  });
+
+  // ─── Keyboard nudge ────────────────────────────────────────────────────────
+
+  document.addEventListener('keydown', function (e) {
+    if (!state.selectedId) return;
+    var isArrow = e.key === 'ArrowUp' || e.key === 'ArrowDown' || e.key === 'ArrowLeft' || e.key === 'ArrowRight';
+    if (!isArrow) return;
+    e.preventDefault();
+
+    var guide = state.guides.find(function (g) { return g.id === state.selectedId; });
+    if (!guide) return;
+
+    var delta = e.shiftKey ? 10 : 1;
+    if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') delta = -delta;
+    // Only allow axis-appropriate arrow keys
+    if (guide.axis === 'h' && (e.key === 'ArrowLeft' || e.key === 'ArrowRight')) return;
+    if (guide.axis === 'v' && (e.key === 'ArrowUp' || e.key === 'ArrowDown')) return;
+
+    guide.pos = Math.max(0, guide.pos + delta);
+    evalInPage('__RulerLines.nudgeGuide(' + JSON.stringify(state.selectedId) + ',' + delta + ')');
+    updateCoordDisplay(state.selectedId, guide.pos);
+  });
+
+  // ─── Color eyedropper ─────────────────────────────────────────────────────
+
+  document.getElementById('btn-eyedropper').addEventListener('click', async function () {
+    if (!('EyeDropper' in window)) return;
+    try {
+      var result = await new EyeDropper().open();
+      var hex = result.sRGBHex;
+      navigator.clipboard.writeText(hex);
+      var toast = document.getElementById('color-toast');
+      toast.innerHTML = '';
+      var swatch = document.createElement('span');
+      swatch.className = 'color-toast-swatch';
+      swatch.style.background = hex;
+      var label = document.createElement('span');
+      label.className = 'color-toast-hex';
+      label.textContent = hex;
+      var hint = document.createElement('span');
+      hint.className = 'color-toast-copy';
+      hint.textContent = 'copied';
+      toast.appendChild(swatch);
+      toast.appendChild(label);
+      toast.appendChild(hint);
+      toast.classList.remove('hidden');
+      clearTimeout(toast._timer);
+      toast._timer = setTimeout(function () { toast.classList.add('hidden'); }, 3000);
+    } catch (e) { /* user cancelled */ }
+  });
+
+  // ─── Spacing inspector ────────────────────────────────────────────────────
+
+  document.getElementById('btn-spacing').addEventListener('click', function () {
+    state.spacing = !state.spacing;
+    this.classList.toggle('active', state.spacing);
+    if (state.spacing) {
+      showSpacing();
+    } else {
+      evalInPage('__RulerLines.clearSpacing()');
+    }
+  });
+
+  // ─── Font inspector ───────────────────────────────────────────────────────
+
+  document.getElementById('btn-font').addEventListener('click', function () {
+    state.fontInspector = !state.fontInspector;
+    this.classList.toggle('active', state.fontInspector);
+    evalInPage('__RulerLines.setFontInspector(' + state.fontInspector + ')');
+  });
+
   chrome.devtools.panels.elements.onSelectionChanged.addListener(function () {
     if (state.boxModel) showBoxModel();
+    if (state.spacing) showSpacing();
   });
 
   renderGuideList();

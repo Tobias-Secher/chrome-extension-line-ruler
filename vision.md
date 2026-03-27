@@ -72,12 +72,16 @@ There is no setup, no API key, no project config. Open DevTools, open the Ruler 
 - **DevTools panel** — the control surface lives in a dedicated Chrome DevTools panel, separate from the page
 - **Ruler visibility toggle** — a toggle switch in the toolbar shows or hides the top and left ruler bars; useful when content at the very edges of the viewport is obscured by the ruler overlay. Rulers are on by default and the toggle reflects their live state
 - **Column grid overlay** — a toggleable column grid rendered directly on the page. Configurable column count (default 12) and gutter gap (default 20px) with a color picker; settings are exposed inline when the grid is active and update the overlay in real time
+- **Distance readout between guides** — distances between adjacent same-axis guide pairs are shown inline between guide rows in the panel and update live as guides are dragged
+- **Breakpoint presets** — a one-click row of standard viewport widths (320, 768, 1024, 1440px) that drops a vertical guide at the chosen position instantly
+- **Keyboard nudge** — click a guide row in the panel to select it, then reposition with arrow keys (1px) or Shift + arrow keys (10px)
+- **Color eyedropper** — samples any pixel on the page using the browser's native EyeDropper API and copies the hex value to the clipboard, with a brief inline color preview
+- **Font inspector** — a hover tooltip that follows the cursor and displays the font-family, size, weight, and line-height of any element on the page; toggled from the toolbar
+- **Spacing inspector** — select any two elements in the DevTools Elements panel and visualize the pixel gap between their bounding boxes as labeled measurement lines on the page; overlap is highlighted in red
 
 ### Phase 2 — Measurement & Precision
 
-- **Distance readout between two guides** — when two horizontal or two vertical guides are selected, show the pixel distance between them
 - **Snap to element edges** — when dragging a guide near a DOM element's boundary, it snaps precisely to that element's edge
-- **Keyboard nudge** — move a selected guide by 1px (arrow keys) or 10px (Shift + arrow keys)
 - **Coordinate input** — type an exact pixel value to position a guide precisely
 
 ### Phase 3 — Persistence & Configuration
@@ -85,12 +89,10 @@ There is no setup, no API key, no project config. Open DevTools, open the Ruler 
 - **Per-domain guide persistence** — guide positions, colors, and layout are saved to `chrome.storage` and restored automatically when revisiting the same domain
 - **Named guide sets / presets** — save a layout of guides under a name (e.g. "12-column grid", "mobile breakpoints") and recall it instantly
 - **JSON import/export** — export your guide configuration as JSON and import it on another machine or share it with teammates
-- **Breakpoint presets** — built-in presets for common responsive breakpoints (320px, 768px, 1024px, 1440px) placeable with one click
 
 ### Phase 4 — Advanced Measurement
 
 - **Element dimension overlay on hover** — hovering an element while the tool is active shows a non-intrusive overlay with its width, height, and position
-- **Gap measurement between elements** — select two elements and see the spacing between them, rendered visually between the guides
 - **Screenshot with guides** — capture the current viewport with guides rendered in the image, useful for annotated QA screenshots
 - **Responsive simulation mode** — lock viewport width to a specific breakpoint to test layout at that exact size
 
@@ -101,6 +103,17 @@ There is no setup, no API key, no project config. Open DevTools, open the Ruler 
 - **Guide grouping and locking** — group related guides and lock them to prevent accidental movement
 - **Undo/redo** — full history of guide additions, moves, and removals
 - **Ruler unit toggle** — switch between pixels, rem, em, and percentage units on the ruler tick marks
+
+---
+
+## Long-term / To-do
+
+These features are valuable but require more infrastructure and are deferred until the core toolset is stable.
+
+- **Per-domain guide persistence** — guide positions, colors, and layout are saved to `chrome.storage` and restored automatically when revisiting the same domain
+- **Named guide sets / presets** — save a layout of guides under a name (e.g. "12-column grid", "mobile breakpoints") and recall it instantly
+- **JSON import/export** — export your guide configuration as JSON and import it on another machine or share it with teammates
+- **Responsive simulation mode** — lock viewport width to a specific breakpoint to test layout at that exact size
 
 ---
 

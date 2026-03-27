@@ -15,6 +15,8 @@
       <div class="tb-divider"></div>
       <div class="tb-group">
         <button id="btn-box-model">Box Model</button>
+        <button id="btn-spacing">Spacing</button>
+        <button id="btn-eyedropper" title="Pick color from page">Eyedropper</button>
       </div>
       <button id="btn-clear-all">Clear</button>
     </div>
@@ -26,8 +28,10 @@
       </label>
       <button id="btn-crosshair">Crosshair</button>
       <button id="btn-grid">Grid</button>
+      <button id="btn-font">Font</button>
     </div>
   </div>
+  <div id="color-toast" class="hidden"></div>
   <div id="grid-settings" class="settings-panel hidden">
     <span class="settings-label">Cols</span>
     <input type="number" id="input-grid-cols" min="1" max="48" value="12">
@@ -35,6 +39,13 @@
     <input type="number" id="input-grid-gap" min="0" max="200" value="20">
     <span class="settings-unit">px</span>
     <input type="color" id="input-grid-color" class="color-picker settings-color" value="#4a9eff">
+  </div>
+  <div id="breakpoints-row">
+    <span class="settings-label">BP</span>
+    <button class="btn-bp" data-pos="320">320</button>
+    <button class="btn-bp" data-pos="768">768</button>
+    <button class="btn-bp" data-pos="1024">1024</button>
+    <button class="btn-bp" data-pos="1440">1440</button>
   </div>
   <div id="guides-section" class="list-section">
     <div class="section-header">

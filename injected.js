@@ -536,6 +536,8 @@
         el.parentNode && el.parentNode.removeChild(el);
       });
       boxes = {};
+      this.clearSpacing();
+      this.setFontInspector(false);
     },
 
     clearPendingUpdate: function () {
@@ -601,6 +603,150 @@
     clearBoxModel: function () {
       this._bmEls.forEach(function (el) { el.parentNode && el.parentNode.removeChild(el); });
       this._bmEls = [];
+    },
+
+    // ── Nudge ──
+
+    nudgeGuide: function (id, delta) {
+      var el = guides[id];
+      if (!el) return;
+      var isH = el.classList.contains('__rl-h');
+      var prop = isH ? 'top' : 'left';
+      var cur = parseInt(el.style[prop]) || 0;
+      var next = Math.max(0, cur + delta);
+      el.style[prop] = next + 'px';
+      var label = el.querySelector('.__rl-label');
+      if (label) label.textContent = next + 'px';
+      this.pendingUpdate = { type: 'guide', id: id, pos: next };
+    },
+
+    // ── Spacing inspector ──
+
+    _spacingEls: [],
+
+    setSpacing: function (data) {
+      this.clearSpacing();
+      var r0 = data.r0, r1 = data.r1;
+      var self = this;
+
+      function makeLine(x1, y1, len, isH, gap, overlap) {
+        var line = document.createElement('div');
+        var color = overlap ? 'rgba(248,113,113,0.8)' : 'rgba(156,220,254,0.8)';
+        line.style.cssText = [
+          'position:fixed',
+          'pointer-events:none',
+          isH ? 'top:' + (y1 - 0.5) + 'px' : 'left:' + (x1 - 0.5) + 'px',
+          isH ? 'left:' + x1 + 'px' : 'top:' + y1 + 'px',
+          isH ? 'width:' + len + 'px' : 'width:1px',
+          isH ? 'height:1px' : 'height:' + len + 'px',
+          'background:' + color,
+          'z-index:2147483646',
+        ].join(';');
+        host.appendChild(line);
+        self._spacingEls.push(line);
+
+        var lbl = document.createElement('span');
+        lbl.style.cssText = [
+          'position:fixed',
+          isH ? 'top:' + (y1 + 3) + 'px' : 'top:' + (y1 + len / 2 - 6) + 'px',
+          isH ? 'left:' + (x1 + len / 2 - 14) + 'px' : 'left:' + (x1 + 3) + 'px',
+          'font:9px monospace',
+          'color:#fff',
+          'background:rgba(0,0,0,0.6)',
+          'padding:1px 3px',
+          'border-radius:2px',
+          'pointer-events:none',
+          'white-space:nowrap',
+          'z-index:2147483647',
+        ].join(';');
+        lbl.textContent = Math.round(Math.abs(gap)) + 'px';
+        host.appendChild(lbl);
+        self._spacingEls.push(lbl);
+      }
+
+      // Horizontal gap (between right of left-most and left of right-most)
+      var leftEl = r0.x < r1.x ? r0 : r1;
+      var rightEl = r0.x < r1.x ? r1 : r0;
+      var hGap = rightEl.x - (leftEl.x + leftEl.w);
+      if (Math.abs(hGap) > 1) {
+        var midY = Math.min(r0.y + r0.h / 2, r1.y + r1.h / 2);
+        makeLine(leftEl.x + leftEl.w, midY, Math.abs(rightEl.x - (leftEl.x + leftEl.w)), true, hGap, hGap < 0);
+      }
+
+      // Vertical gap (between bottom of top-most and top of bottom-most)
+      var topEl = r0.y < r1.y ? r0 : r1;
+      var botEl = r0.y < r1.y ? r1 : r0;
+      var vGap = botEl.y - (topEl.y + topEl.h);
+      if (Math.abs(vGap) > 1) {
+        var midX = Math.min(r0.x + r0.w / 2, r1.x + r1.w / 2);
+        makeLine(midX, topEl.y + topEl.h, Math.abs(botEl.y - (topEl.y + topEl.h)), false, vGap, vGap < 0);
+      }
+    },
+
+    clearSpacing: function () {
+      this._spacingEls.forEach(function (el) { el.parentNode && el.parentNode.removeChild(el); });
+      this._spacingEls = [];
+    },
+
+    // ── Font inspector ──
+
+    _fontActive: false,
+    _fontTip: null,
+    _fontMoveHandler: null,
+
+    setFontInspector: function (enable) {
+      if (enable === this._fontActive) return;
+      this._fontActive = enable;
+      var self = this;
+
+      if (enable) {
+        this._fontTip = document.createElement('div');
+        this._fontTip.id = '__rl-font-tip';
+        this._fontTip.style.cssText = [
+          'position:fixed',
+          'pointer-events:none',
+          'font:10px monospace',
+          'color:#d4d4d8',
+          'background:rgba(20,20,22,0.92)',
+          'border:1px solid rgba(74,158,255,0.35)',
+          'border-radius:3px',
+          'padding:4px 7px',
+          'z-index:2147483647',
+          'line-height:1.6',
+          'white-space:nowrap',
+          'display:none',
+        ].join(';');
+        host.appendChild(this._fontTip);
+
+        this._fontMoveHandler = function (e) {
+          var el = e.target;
+          if (!el || el === self._fontTip) return;
+          var s = window.getComputedStyle(el);
+          var family = s.fontFamily.split(',')[0].replace(/['"]/g, '').trim();
+          var size = s.fontSize;
+          var weight = s.fontWeight;
+          var lh = parseFloat(s.lineHeight) && parseFloat(s.fontSize)
+            ? (parseFloat(s.lineHeight) / parseFloat(s.fontSize)).toFixed(2)
+            : s.lineHeight;
+          var dim = '<span style="color:#5a5a65">size</span>&nbsp;' + size +
+            '&nbsp;&nbsp;<span style="color:#5a5a65">weight</span>&nbsp;' + weight +
+            '&nbsp;&nbsp;<span style="color:#5a5a65">lh</span>&nbsp;' + lh;
+          self._fontTip.innerHTML =
+            '<span style="color:#9cdcfe">' + family + '</span><br>' + dim;
+          var tx = e.clientX + 14, ty = e.clientY + 14;
+          if (tx + 160 > window.innerWidth) tx = e.clientX - 170;
+          if (ty + 52 > window.innerHeight) ty = e.clientY - 58;
+          self._fontTip.style.left = tx + 'px';
+          self._fontTip.style.top = ty + 'px';
+          self._fontTip.style.display = '';
+        };
+        document.addEventListener('mousemove', this._fontMoveHandler, true);
+      } else {
+        document.removeEventListener('mousemove', this._fontMoveHandler, true);
+        this._fontMoveHandler = null;
+        if (this._fontTip) { this._fontTip.remove(); this._fontTip = null; }
+        this._fontActive = false;
+      }
     },
 
     // ── Grid overlay ──
