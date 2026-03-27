@@ -12,8 +12,6 @@
     boxModel: false,
     crosshair: false,
     rulers: true,
-    elementPicker: false,
-    pickerPoll: null,
     lastAddedId: null,
   };
 
@@ -136,10 +134,7 @@
   function clearAll() {
     state.guides = [];
     state.boxes = [];
-    if (state.pickerPoll) { clearInterval(state.pickerPoll); state.pickerPoll = null; }
-    state.elementPicker = false;
     state.rulers = true;
-    document.getElementById('btn-pick-element').classList.remove('active');
     document.getElementById('chk-rulers').checked = true;
     evalInPage('__RulerLines.clearAll()');
     evalInPage('__RulerLines.setRulers(true)');
@@ -353,38 +348,6 @@
       showBoxModel();
     } else {
       evalInPage('__RulerLines.clearBoxModel()');
-    }
-  });
-
-  document.getElementById('btn-pick-element').addEventListener('click', function () {
-    state.elementPicker = !state.elementPicker;
-    this.classList.toggle('active', state.elementPicker);
-    evalInPage('__RulerLines.setElementPicker(' + state.elementPicker + ')');
-
-    if (state.elementPicker) {
-      // Poll until picker deactivates in the injected script
-      state.pickerPoll = setInterval(function () {
-        chrome.devtools.inspectedWindow.eval(
-          '(function(){var r=window.__RulerLines;' +
-          'return JSON.stringify({active:r._pickerActive,success:r._pickerSuccess});})()',
-          function (json) {
-            if (!json || json === 'null') return;
-            var s; try { s = JSON.parse(json); } catch(e) { return; }
-            if (s.active) return;  // still picking
-            clearInterval(state.pickerPoll);
-            state.pickerPoll = null;
-            state.elementPicker = false;
-            document.getElementById('btn-pick-element').classList.remove('active');
-            if (s.success) {
-              state.boxModel = true;
-              document.getElementById('btn-box-model').classList.add('active');
-            }
-          }
-        );
-      }, 16);
-    } else {
-      // Manual cancel via button re-click
-      if (state.pickerPoll) { clearInterval(state.pickerPoll); state.pickerPoll = null; }
     }
   });
 

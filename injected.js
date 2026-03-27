@@ -447,13 +447,6 @@
   var _crosshairV = null;
   var _crosshairMoveHandler = null;
 
-  // ─── Picker state ─────────────────────────────────────────────────────────
-
-  var _pickerCapture = null;
-  var _pickerHighlight = null;
-  var _pickerTarget = null;
-  var _pickerKeyHandler = null;
-
   // ─── Public API ───────────────────────────────────────────────────────────
 
   window.__RulerLines = {
@@ -533,7 +526,6 @@
     // ── Combined ──
 
     clearAll: function () {
-      this.setElementPicker(false);
       Object.keys(guides).forEach(function (id) {
         var el = guides[id];
         el.parentNode && el.parentNode.removeChild(el);
@@ -610,88 +602,6 @@
       this._bmEls.forEach(function (el) { el.parentNode && el.parentNode.removeChild(el); });
       this._bmEls = [];
     },
-
-    // ── Element picker ──
-
-    setElementPicker: function (enable) {
-      if (enable === window.__RulerLines._pickerActive) return;
-      window.__RulerLines._pickerActive = enable;
-      window.__RulerLines._pickerSuccess = false;
-
-      if (enable) {
-        // Full-screen capture layer intercepts all mouse events
-        _pickerCapture = document.createElement('div');
-        _pickerCapture.style.cssText =
-          'position:fixed;top:0;left:0;width:100%;height:100%;' +
-          'z-index:2147483646;cursor:crosshair;';
-
-        // Highlight outline over hovered element
-        _pickerHighlight = document.createElement('div');
-        _pickerHighlight.style.cssText =
-          'position:fixed;pointer-events:none;z-index:2147483645;' +
-          'outline:2px solid #4a9eff;background:rgba(74,158,255,0.1);display:none;';
-
-        host.appendChild(_pickerCapture);
-        host.appendChild(_pickerHighlight);
-
-        _pickerCapture.addEventListener('mousemove', function (e) {
-          // Temporarily hide capture to reach underlying element
-          _pickerCapture.style.display = 'none';
-          var el = document.elementFromPoint(e.clientX, e.clientY);
-          _pickerCapture.style.display = '';
-          if (!el || el === document.body || el === document.documentElement) {
-            _pickerHighlight.style.display = 'none';
-            _pickerTarget = null;
-            return;
-          }
-          _pickerTarget = el;
-          var r = el.getBoundingClientRect();
-          _pickerHighlight.style.cssText =
-            'position:fixed;pointer-events:none;z-index:2147483645;' +
-            'outline:2px solid #4a9eff;background:rgba(74,158,255,0.1);' +
-            'top:' + r.top + 'px;left:' + r.left + 'px;' +
-            'width:' + r.width + 'px;height:' + r.height + 'px;';
-        });
-
-        _pickerCapture.addEventListener('click', function (e) {
-          e.preventDefault();
-          e.stopPropagation();
-          if (!_pickerTarget) return;
-          var el = _pickerTarget;
-          var r = el.getBoundingClientRect();
-          var s = window.getComputedStyle(el);
-          var d = {
-            x: r.left, y: r.top, w: r.width, h: r.height,
-            pt: parseFloat(s.paddingTop),    pr: parseFloat(s.paddingRight),
-            pb: parseFloat(s.paddingBottom), pl: parseFloat(s.paddingLeft),
-            bt: parseFloat(s.borderTopWidth),  br: parseFloat(s.borderRightWidth),
-            bb: parseFloat(s.borderBottomWidth), bl: parseFloat(s.borderLeftWidth),
-            mt: parseFloat(s.marginTop),    mr: parseFloat(s.marginRight),
-            mb: parseFloat(s.marginBottom), ml: parseFloat(s.marginLeft),
-          };
-          window.__RulerLines.setBoxModel(d);
-          window.__RulerLines._pickerSuccess = true;
-          window.__RulerLines.setElementPicker(false);
-        });
-
-        _pickerKeyHandler = function (e) {
-          if (e.key === 'Escape') window.__RulerLines.setElementPicker(false);
-        };
-        document.addEventListener('keydown', _pickerKeyHandler);
-
-      } else {
-        if (_pickerCapture)   { _pickerCapture.remove();   _pickerCapture = null; }
-        if (_pickerHighlight) { _pickerHighlight.remove();  _pickerHighlight = null; }
-        if (_pickerKeyHandler) {
-          document.removeEventListener('keydown', _pickerKeyHandler);
-          _pickerKeyHandler = null;
-        }
-        _pickerTarget = null;
-      }
-    },
-
-    _pickerActive: false,
-    _pickerSuccess: false,
 
     // ── Crosshair ──
 
