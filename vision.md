@@ -71,6 +71,7 @@ There is no setup, no API key, no project config. Open DevTools, open the Ruler 
 - **In-DOM injection** — rulers, guides, and boxes are part of the DOM, not a detached canvas overlay
 - **DevTools panel** — the control surface lives in a dedicated Chrome DevTools panel, separate from the page
 - **Ruler visibility toggle** — a toggle switch in the toolbar shows or hides the top and left ruler bars; useful when content at the very edges of the viewport is obscured by the ruler overlay. Rulers are on by default and the toggle reflects their live state
+- **Column grid overlay** — a toggleable column grid rendered directly on the page. Configurable column count (default 12) and gutter gap (default 20px) with a color picker; settings are exposed inline when the grid is active and update the overlay in real time
 
 ### Phase 2 — Measurement & Precision
 

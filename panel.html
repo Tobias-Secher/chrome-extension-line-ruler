@@ -25,7 +25,16 @@
         <span class="toggle-label">Rulers</span>
       </label>
       <button id="btn-crosshair">Crosshair</button>
+      <button id="btn-grid">Grid</button>
     </div>
+  </div>
+  <div id="grid-settings" class="settings-panel hidden">
+    <span class="settings-label">Cols</span>
+    <input type="number" id="input-grid-cols" min="1" max="48" value="12">
+    <span class="settings-label">Gap</span>
+    <input type="number" id="input-grid-gap" min="0" max="200" value="20">
+    <span class="settings-unit">px</span>
+    <input type="color" id="input-grid-color" class="color-picker settings-color" value="#4a9eff">
   </div>
   <div id="guides-section" class="list-section">
     <div class="section-header">

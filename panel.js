@@ -12,6 +12,10 @@
     boxModel: false,
     crosshair: false,
     rulers: true,
+    grid: false,
+    gridCols: 12,
+    gridGap: 20,
+    gridColor: '#4a9eff',
     lastAddedId: null,
   };
 
@@ -131,13 +135,28 @@
 
   // ─── Clear all ────────────────────────────────────────────────────────────
 
+  function applyGrid() {
+    evalInPage(
+      '__RulerLines.setGrid(' +
+        state.grid + ',' +
+        state.gridCols + ',' +
+        state.gridGap + ',' +
+        JSON.stringify(state.gridColor) +
+      ')'
+    );
+  }
+
   function clearAll() {
     state.guides = [];
     state.boxes = [];
     state.rulers = true;
+    state.grid = false;
     document.getElementById('chk-rulers').checked = true;
+    document.getElementById('btn-grid').classList.remove('active');
+    document.getElementById('grid-settings').classList.add('hidden');
     evalInPage('__RulerLines.clearAll()');
     evalInPage('__RulerLines.setRulers(true)');
+    evalInPage('__RulerLines.setGrid(false)');
     renderGuideList();
     renderBoxList();
     stopPolling();
@@ -360,6 +379,34 @@
     state.crosshair = !state.crosshair;
     this.classList.toggle('active', state.crosshair);
     evalInPage('__RulerLines.setCrosshair(' + state.crosshair + ')');
+  });
+
+  document.getElementById('btn-grid').addEventListener('click', function () {
+    state.grid = !state.grid;
+    this.classList.toggle('active', state.grid);
+    document.getElementById('grid-settings').classList.toggle('hidden', !state.grid);
+    applyGrid();
+  });
+
+  document.getElementById('input-grid-cols').addEventListener('input', function () {
+    var v = parseInt(this.value, 10);
+    if (v >= 1 && v <= 48) {
+      state.gridCols = v;
+      if (state.grid) applyGrid();
+    }
+  });
+
+  document.getElementById('input-grid-gap').addEventListener('input', function () {
+    var v = parseInt(this.value, 10);
+    if (!isNaN(v) && v >= 0) {
+      state.gridGap = v;
+      if (state.grid) applyGrid();
+    }
+  });
+
+  document.getElementById('input-grid-color').addEventListener('input', function () {
+    state.gridColor = this.value;
+    if (state.grid) applyGrid();
   });
 
   chrome.devtools.panels.elements.onSelectionChanged.addListener(function () {

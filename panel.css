@@ -86,8 +86,8 @@ button:active {
 }
 
 #btn-box-model.active,
-#btn-pick-element.active,
-#btn-crosshair.active {
+#btn-crosshair.active,
+#btn-grid.active {
   background: var(--accent-bg);
   border-color: var(--accent-border);
   color: var(--accent-text);
@@ -173,6 +173,59 @@ button:active {
 
 .toggle-switch:has(#chk-rulers:checked) .toggle-label {
   color: var(--text);
+}
+
+/* ─── Grid settings panel ────────────────────────────────────────────────── */
+
+.settings-panel {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 8px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-panel);
+}
+
+.settings-panel.hidden {
+  display: none;
+}
+
+.settings-label {
+  font-size: 10px;
+  color: var(--text-dim);
+  flex-shrink: 0;
+}
+
+.settings-unit {
+  font-size: 10px;
+  color: var(--text-dim);
+}
+
+.settings-panel input[type="number"] {
+  width: 38px;
+  background: var(--bg-item);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  color: var(--text);
+  font-family: monospace;
+  font-size: 11px;
+  padding: 2px 4px;
+  text-align: center;
+  -moz-appearance: textfield;
+}
+
+.settings-panel input[type="number"]::-webkit-inner-spin-button,
+.settings-panel input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+}
+
+.settings-panel input[type="number"]:focus {
+  outline: none;
+  border-color: var(--accent-border);
+}
+
+.settings-color {
+  margin-left: auto;
 }
 
 /* ─── Section headers ─────────────────────────────────────────────────────── */

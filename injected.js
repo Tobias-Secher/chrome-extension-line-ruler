@@ -603,6 +603,37 @@
       this._bmEls = [];
     },
 
+    // ── Grid overlay ──
+
+    setGrid: function (visible, columns, gap, color) {
+      var existing = document.getElementById('__rl-grid');
+      if (existing) { existing.parentNode && existing.parentNode.removeChild(existing); }
+      if (!visible) return;
+
+      var grid = document.createElement('div');
+      grid.id = '__rl-grid';
+      grid.style.cssText = [
+        'position:fixed',
+        'top:0',
+        'left:0',
+        'width:100vw',
+        'height:100vh',
+        'pointer-events:none',
+        'display:grid',
+        'grid-template-columns:repeat(' + columns + ',1fr)',
+        'column-gap:' + gap + 'px',
+        'z-index:2147483645',
+      ].join(';');
+
+      for (var i = 0; i < columns; i++) {
+        var col = document.createElement('div');
+        col.style.cssText = 'background:' + color + ';opacity:0.12;pointer-events:none;';
+        grid.appendChild(col);
+      }
+
+      host.appendChild(grid);
+    },
+
     // ── Crosshair ──
 
     setCrosshair: function (enable) {
