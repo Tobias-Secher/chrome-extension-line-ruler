@@ -11,6 +11,9 @@
     runtimeReady: false,
     boxModel: false,
     crosshair: false,
+    elementPicker: false,
+    pickerPoll: null,
+    lastAddedId: null,
   };
 
   // ─── Eval helpers ─────────────────────────────────────────────────────────
@@ -52,6 +55,7 @@
     const pos = axis === 'h' ? 300 : 400;
     const color = COLORS[(state.nextId - 2) % COLORS.length];
     state.guides.push({ id, axis, pos, color });
+    state.lastAddedId = id;
     evalInPage(
       '__RulerLines.addGuide(' +
         JSON.stringify(id) + ',' +
@@ -75,6 +79,9 @@
     const guide = state.guides.find(function (g) { return g.id === id; });
     if (guide) guide.color = color;
     evalInPage('__RulerLines.setColor(' + JSON.stringify(id) + ',' + JSON.stringify(color) + ')');
+    // Update the row border color live
+    var row = document.querySelector('.guide-row[data-id="' + id + '"]');
+    if (row) row.style.borderLeftColor = color;
   }
 
   // ─── Box operations ───────────────────────────────────────────────────────
@@ -85,6 +92,7 @@
     const color = COLORS[(state.nextId - 2) % COLORS.length];
     // x/y are null — injected.js will center in viewport and return actual coords
     state.boxes.push({ id, x: null, y: null, w, h, color });
+    state.lastAddedId = id;
     evalInPage(
       'JSON.stringify(__RulerLines.addBox(' +
         JSON.stringify(id) + ', null, null,' +
@@ -117,6 +125,9 @@
     const box = state.boxes.find(function (b) { return b.id === id; });
     if (box) box.color = color;
     evalInPage('__RulerLines.setBoxColor(' + JSON.stringify(id) + ',' + JSON.stringify(color) + ')');
+    // Update the row border color live
+    var row = document.querySelector('.guide-row[data-id="' + id + '"]');
+    if (row) row.style.borderLeftColor = color;
   }
 
   // ─── Clear all ────────────────────────────────────────────────────────────
@@ -124,6 +135,9 @@
   function clearAll() {
     state.guides = [];
     state.boxes = [];
+    if (state.pickerPoll) { clearInterval(state.pickerPoll); state.pickerPoll = null; }
+    state.elementPicker = false;
+    document.getElementById('btn-pick-element').classList.remove('active');
     evalInPage('__RulerLines.clearAll()');
     renderGuideList();
     renderBoxList();
@@ -182,17 +196,27 @@
     if (span) span.textContent = w + ' \u00d7 ' + h;
   }
 
+  // ─── Section headers ──────────────────────────────────────────────────────
+
+  function updateSectionHeaders() {
+    var gc = document.getElementById('guides-count');
+    var bc = document.getElementById('boxes-count');
+    if (gc) gc.textContent = state.guides.length > 0 ? state.guides.length : '';
+    if (bc) bc.textContent = state.boxes.length > 0 ? state.boxes.length : '';
+  }
+
   // ─── Render: guides ───────────────────────────────────────────────────────
 
   function renderGuideList() {
     var list = document.getElementById('guide-list');
     list.innerHTML = '';
 
-    if (state.guides.length === 0 && state.boxes.length === 0) {
+    if (state.guides.length === 0) {
       var empty = document.createElement('div');
       empty.className = 'empty-state';
-      empty.textContent = 'Add a guide line or measurement box above.';
+      empty.textContent = 'No guides yet';
       list.appendChild(empty);
+      updateSectionHeaders();
       return;
     }
 
@@ -200,6 +224,8 @@
       var row = document.createElement('div');
       row.className = 'guide-row';
       row.dataset.id = guide.id;
+      row.style.borderLeftColor = guide.color;
+      if (guide.id === state.lastAddedId) row.classList.add('row-new');
 
       var axisLabel = document.createElement('span');
       axisLabel.className = 'axis-label';
@@ -233,6 +259,9 @@
       row.appendChild(removeBtn);
       list.appendChild(row);
     });
+
+    state.lastAddedId = null;
+    updateSectionHeaders();
   }
 
   // ─── Render: boxes ────────────────────────────────────────────────────────
@@ -241,13 +270,21 @@
     var list = document.getElementById('box-list');
     list.innerHTML = '';
 
-    // Re-check empty state (guides render drives the empty message)
-    renderGuideList();
+    if (state.boxes.length === 0) {
+      var empty = document.createElement('div');
+      empty.className = 'empty-state';
+      empty.textContent = 'No boxes yet';
+      list.appendChild(empty);
+      updateSectionHeaders();
+      return;
+    }
 
     state.boxes.forEach(function (box) {
       var row = document.createElement('div');
       row.className = 'guide-row box-row';
       row.dataset.id = box.id;
+      row.style.borderLeftColor = box.color;
+      if (box.id === state.lastAddedId) row.classList.add('row-new');
 
       var typeLabel = document.createElement('span');
       typeLabel.className = 'axis-label box-type-label';
@@ -281,6 +318,9 @@
       row.appendChild(removeBtn);
       list.appendChild(row);
     });
+
+    state.lastAddedId = null;
+    updateSectionHeaders();
   }
 
   // ─── Box model overlay ────────────────────────────────────────────────────
@@ -312,6 +352,38 @@
     }
   });
 
+  document.getElementById('btn-pick-element').addEventListener('click', function () {
+    state.elementPicker = !state.elementPicker;
+    this.classList.toggle('active', state.elementPicker);
+    evalInPage('__RulerLines.setElementPicker(' + state.elementPicker + ')');
+
+    if (state.elementPicker) {
+      // Poll until picker deactivates in the injected script
+      state.pickerPoll = setInterval(function () {
+        chrome.devtools.inspectedWindow.eval(
+          '(function(){var r=window.__RulerLines;' +
+          'return JSON.stringify({active:r._pickerActive,success:r._pickerSuccess});})()',
+          function (json) {
+            if (!json || json === 'null') return;
+            var s; try { s = JSON.parse(json); } catch(e) { return; }
+            if (s.active) return;  // still picking
+            clearInterval(state.pickerPoll);
+            state.pickerPoll = null;
+            state.elementPicker = false;
+            document.getElementById('btn-pick-element').classList.remove('active');
+            if (s.success) {
+              state.boxModel = true;
+              document.getElementById('btn-box-model').classList.add('active');
+            }
+          }
+        );
+      }, 16);
+    } else {
+      // Manual cancel via button re-click
+      if (state.pickerPoll) { clearInterval(state.pickerPoll); state.pickerPoll = null; }
+    }
+  });
+
   document.getElementById('btn-crosshair').addEventListener('click', function () {
     state.crosshair = !state.crosshair;
     this.classList.toggle('active', state.crosshair);
@@ -323,4 +395,5 @@
   });
 
   renderGuideList();
+  renderBoxList();
 })();

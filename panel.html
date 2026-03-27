@@ -6,15 +6,36 @@
 </head>
 <body>
   <div id="toolbar">
-    <button id="btn-add-h">+ Horizontal</button>
-    <button id="btn-add-v">+ Vertical</button>
-    <button id="btn-add-box">+ Box</button>
-    <button id="btn-box-model">Box Model</button>
-    <button id="btn-crosshair">Crosshair</button>
+    <div class="tb-group">
+      <button id="btn-add-h" title="Add Horizontal Guide">+ H</button>
+      <button id="btn-add-v" title="Add Vertical Guide">+ V</button>
+      <button id="btn-add-box" title="Add Measurement Box">+ Box</button>
+    </div>
+    <div class="tb-divider"></div>
+    <div class="tb-group">
+      <button id="btn-box-model">Box Model</button>
+      <button id="btn-pick-element">Pick</button>
+    </div>
+    <div class="tb-divider"></div>
+    <div class="tb-group">
+      <button id="btn-crosshair">Crosshair</button>
+    </div>
     <button id="btn-clear-all">Clear All</button>
   </div>
-  <div id="guide-list"></div>
-  <div id="box-list"></div>
+  <div id="guides-section" class="list-section">
+    <div class="section-header">
+      <span class="section-title">GUIDES</span>
+      <span class="section-count" id="guides-count"></span>
+    </div>
+    <div id="guide-list"></div>
+  </div>
+  <div id="boxes-section" class="list-section">
+    <div class="section-header">
+      <span class="section-title">BOXES</span>
+      <span class="section-count" id="boxes-count"></span>
+    </div>
+    <div id="box-list"></div>
+  </div>
   <script src="panel.js"></script>
 </body>
 </html>
