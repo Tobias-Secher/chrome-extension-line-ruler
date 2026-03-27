@@ -37,11 +37,17 @@ body {
 
 #toolbar {
   display: flex;
-  align-items: center;
-  gap: 3px;
-  padding: 6px 8px;
+  flex-direction: column;
+  gap: 4px;
+  padding: 5px 8px 6px;
   border-bottom: 1px solid var(--border);
   background: var(--bg-panel);
+}
+
+.tb-row {
+  display: flex;
+  align-items: center;
+  gap: 3px;
 }
 
 .tb-group {
@@ -89,6 +95,7 @@ button:active {
 
 #btn-clear-all {
   margin-left: auto;
+  flex-shrink: 0;
   color: var(--text-dim);
   border-color: transparent;
   background: transparent;
@@ -164,7 +171,6 @@ button:active {
   background: var(--accent-text);
 }
 
-#chk-rulers:checked ~ .toggle-label,
 .toggle-switch:has(#chk-rulers:checked) .toggle-label {
   color: var(--text);
 }

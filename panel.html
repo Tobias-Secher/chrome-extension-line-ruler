@@ -6,25 +6,26 @@
 </head>
 <body>
   <div id="toolbar">
-    <div class="tb-group">
-      <button id="btn-add-h" title="Add Horizontal Guide">+ H</button>
-      <button id="btn-add-v" title="Add Vertical Guide">+ V</button>
-      <button id="btn-add-box" title="Add Measurement Box">+ Box</button>
+    <div class="tb-row">
+      <div class="tb-group">
+        <button id="btn-add-h" title="Add Horizontal Guide">+ H</button>
+        <button id="btn-add-v" title="Add Vertical Guide">+ V</button>
+        <button id="btn-add-box" title="Add Measurement Box">+ Box</button>
+      </div>
+      <div class="tb-divider"></div>
+      <div class="tb-group">
+        <button id="btn-box-model">Box Model</button>
+      </div>
+      <button id="btn-clear-all">Clear</button>
     </div>
-    <div class="tb-divider"></div>
-    <div class="tb-group">
-      <button id="btn-box-model">Box Model</button>
-    </div>
-    <div class="tb-divider"></div>
-    <div class="tb-group">
+    <div class="tb-row">
       <label class="toggle-switch" title="Show/hide rulers">
-        <span class="toggle-label">Rulers</span>
         <input type="checkbox" id="chk-rulers">
         <span class="toggle-track"><span class="toggle-thumb"></span></span>
+        <span class="toggle-label">Rulers</span>
       </label>
       <button id="btn-crosshair">Crosshair</button>
     </div>
-    <button id="btn-clear-all">Clear All</button>
   </div>
   <div id="guides-section" class="list-section">
     <div class="section-header">
