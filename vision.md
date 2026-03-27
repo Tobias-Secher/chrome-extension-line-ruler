@@ -155,4 +155,5 @@ Secondary users include **designers who can inspect code** and want to do quick 
 | Page interactivity          | `pointer-events: none` on guides container | Page remains fully usable                          |
 | Control surface             | Chrome DevTools panel (`devtools_page`)    | Native DevTools integration, no popup              |
 | Guide injection             | `chrome.devtools.inspectedWindow.eval()`   | Works without `scripting` permission, bypasses CSP |
+| Panel toolbar layout        | CSS grid (1fr + max-content), wrapping flex controls | New buttons slot in without layout changes; Clear is always anchored right |
 | State persistence (Phase 3) | `chrome.storage.sync`                      | Per-domain, synced across devices                  |

@@ -6,21 +6,15 @@
 </head>
 <body>
   <div id="toolbar">
-    <div class="tb-row">
+    <div id="tb-buttons">
       <div class="tb-group">
         <button id="btn-add-h" title="Add Horizontal Guide">+ H</button>
         <button id="btn-add-v" title="Add Vertical Guide">+ V</button>
         <button id="btn-add-box" title="Add Measurement Box">+ Box</button>
       </div>
-      <div class="tb-divider"></div>
-      <div class="tb-group">
-        <button id="btn-box-model">Box Model</button>
-        <button id="btn-spacing">Spacing</button>
-        <button id="btn-eyedropper" title="Pick color from page">Eyedropper</button>
-      </div>
-      <button id="btn-clear-all">Clear</button>
-    </div>
-    <div class="tb-row">
+      <button id="btn-box-model">Box Model</button>
+      <button id="btn-spacing">Spacing</button>
+      <button id="btn-eyedropper" title="Pick color from page">Eyedropper</button>
       <label class="toggle-switch" title="Show/hide rulers">
         <input type="checkbox" id="chk-rulers">
         <span class="toggle-track"><span class="toggle-thumb"></span></span>
@@ -30,6 +24,7 @@
       <button id="btn-grid">Grid</button>
       <button id="btn-font">Font</button>
     </div>
+    <button id="btn-clear-all">Clear</button>
   </div>
   <div id="color-toast" class="hidden"></div>
   <div id="grid-settings" class="settings-panel hidden">
