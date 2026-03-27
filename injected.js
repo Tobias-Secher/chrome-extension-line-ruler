@@ -144,6 +144,7 @@
 
   function buildCornerCap() {
     var cap = document.createElement('div');
+    cap.id = '__rl-ruler-corner';
     cap.style.cssText = [
       'position:fixed',
       'top:0',
@@ -547,6 +548,14 @@
 
     clearPendingUpdate: function () {
       this.pendingUpdate = null;
+    },
+
+    setRulers: function (visible) {
+      var ids = ['__rl-ruler-top', '__rl-ruler-left', '__rl-ruler-corner'];
+      ids.forEach(function (id) {
+        var el = document.getElementById(id);
+        if (el) el.style.display = visible ? '' : 'none';
+      });
     },
 
     // ── Box model overlay ──

@@ -11,6 +11,7 @@
     runtimeReady: false,
     boxModel: false,
     crosshair: false,
+    rulers: true,
     elementPicker: false,
     pickerPoll: null,
     lastAddedId: null,
@@ -137,8 +138,11 @@
     state.boxes = [];
     if (state.pickerPoll) { clearInterval(state.pickerPoll); state.pickerPoll = null; }
     state.elementPicker = false;
+    state.rulers = true;
     document.getElementById('btn-pick-element').classList.remove('active');
+    document.getElementById('chk-rulers').checked = true;
     evalInPage('__RulerLines.clearAll()');
+    evalInPage('__RulerLines.setRulers(true)');
     renderGuideList();
     renderBoxList();
     stopPolling();
@@ -384,6 +388,11 @@
     }
   });
 
+  document.getElementById('chk-rulers').addEventListener('change', function () {
+    state.rulers = this.checked;
+    evalInPage('__RulerLines.setRulers(' + state.rulers + ')');
+  });
+
   document.getElementById('btn-crosshair').addEventListener('click', function () {
     state.crosshair = !state.crosshair;
     this.classList.toggle('active', state.crosshair);
@@ -396,4 +405,9 @@
 
   renderGuideList();
   renderBoxList();
+
+  // Inject runtime immediately so rulers appear on panel open
+  injectRuntime(function () {
+    document.getElementById('chk-rulers').checked = true;
+  });
 })();

@@ -70,6 +70,7 @@ There is no setup, no API key, no project config. Open DevTools, open the Ruler 
 - **Remove individual boxes** — each box can be deleted independently
 - **In-DOM injection** — rulers, guides, and boxes are part of the DOM, not a detached canvas overlay
 - **DevTools panel** — the control surface lives in a dedicated Chrome DevTools panel, separate from the page
+- **Ruler visibility toggle** — a toggle switch in the toolbar shows or hides the top and left ruler bars; useful when content at the very edges of the viewport is obscured by the ruler overlay. Rulers are on by default and the toggle reflects their live state
 
 ### Phase 2 — Measurement & Precision
 
