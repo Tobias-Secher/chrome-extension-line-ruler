@@ -1,18 +1,18 @@
 // ─── Constants ────────────────────────────────────────────────────────────
 
-var RULER_SIZE = 20; // px — width of left ruler, height of top ruler
-var TICK_COLOR = 'rgba(180, 180, 180, 0.6)';
-var RULER_BG = 'rgba(30, 30, 30, 0.85)';
-var LABEL_COLOR = 'rgba(200, 200, 200, 0.7)';
+const RULER_SIZE = 20; // px — width of left ruler, height of top ruler
+const TICK_COLOR = 'rgba(180, 180, 180, 0.6)';
+const RULER_BG = 'rgba(30, 30, 30, 0.85)';
+const LABEL_COLOR = 'rgba(200, 200, 200, 0.7)';
 
 // ─── State — preserved across re-injections ───────────────────────────────
 
-var guides = {};
-var boxes = {};
+let guides = {};
+let boxes = {};
 
 // ─── Host container — created only once ───────────────────────────────────
 
-var host = document.getElementById('__rl-host');
+let host = document.getElementById('__rl-host');
 if (!host) {
   host = document.createElement('div');
   host.id = '__rl-host';

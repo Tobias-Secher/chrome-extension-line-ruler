@@ -1,9 +1,9 @@
 // ─── Crosshair ────────────────────────────────────────────────────────────
 
-var _crosshairActive = false;
-var _crosshairH = null;
-var _crosshairV = null;
-var _crosshairMoveHandler = null;
+let _crosshairActive = false;
+let _crosshairH = null;
+let _crosshairV = null;
+let _crosshairMoveHandler = null;
 
 function setCrosshair(enable) {
   if (enable === _crosshairActive) return;

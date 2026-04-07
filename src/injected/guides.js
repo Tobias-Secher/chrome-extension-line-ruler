@@ -1,11 +1,11 @@
 // ─── Guide creation ───────────────────────────────────────────────────────
 
 function createGuide(id, axis, pos, color) {
-  var el = document.createElement('div');
+  let el = document.createElement('div');
   el.className = '__rl-guide __rl-' + axis;
   el.dataset.id = id;
 
-  var isH = axis === 'h';
+  const isH = axis === 'h';
   el.style.cssText = [
     'position:fixed',
     isH ? 'top:' + pos + 'px' : 'top:0',
@@ -16,7 +16,7 @@ function createGuide(id, axis, pos, color) {
     'pointer-events:none',
   ].join(';');
 
-  var handle = document.createElement('div');
+  let handle = document.createElement('div');
   handle.className = '__rl-handle';
   handle.style.cssText = [
     'position:absolute',
@@ -29,7 +29,7 @@ function createGuide(id, axis, pos, color) {
   ].join(';');
   attachDragHandler(handle, el, id, isH);
 
-  var label = document.createElement('span');
+  let label = document.createElement('span');
   label.className = '__rl-label';
   label.textContent = pos + 'px';
   label.style.cssText = [
@@ -60,10 +60,10 @@ function attachDragHandler(handle, guideEl, id, isH) {
     window.__UITools.isDragging = true;
 
     function onMove(e) {
-      var pos = isH ? e.clientY : e.clientX;
+      let pos = isH ? e.clientY : e.clientX;
       pos = Math.max(0, pos);
       guideEl.style[isH ? 'top' : 'left'] = pos + 'px';
-      var label = guideEl.querySelector('.__rl-label');
+      const label = guideEl.querySelector('.__rl-label');
       if (label) label.textContent = pos + 'px';
       window.__UITools.pendingUpdate = { type: 'guide', id: id, pos: pos };
     }

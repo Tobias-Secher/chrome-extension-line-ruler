@@ -8,13 +8,13 @@ window.__UITools = {
 
   addGuide: function (id, axis, pos, color) {
     if (guides[id]) return;
-    var el = createGuide(id, axis, pos, color);
+    const el = createGuide(id, axis, pos, color);
     guides[id] = el;
     host.appendChild(el);
   },
 
   removeGuide: function (id) {
-    var el = guides[id];
+    const el = guides[id];
     if (el) {
       el.parentNode && el.parentNode.removeChild(el);
       delete guides[id];
@@ -22,7 +22,7 @@ window.__UITools = {
   },
 
   setColor: function (id, color) {
-    var el = guides[id];
+    const el = guides[id];
     if (el) el.style.background = color;
   },
 
@@ -33,7 +33,7 @@ window.__UITools = {
     // Center in viewport if position not provided
     if (x === null || x === undefined) x = Math.max(0, Math.floor((window.innerWidth - w) / 2));
     if (y === null || y === undefined) y = Math.max(0, Math.floor((window.innerHeight - h) / 2));
-    var el = createBox(id, x, y, w, h, color);
+    const el = createBox(id, x, y, w, h, color);
     boxes[id] = el;
     host.appendChild(el);
     // Return actual position so panel can sync state
@@ -41,7 +41,7 @@ window.__UITools = {
   },
 
   removeBox: function (id) {
-    var el = boxes[id];
+    const el = boxes[id];
     if (el) {
       el.parentNode && el.parentNode.removeChild(el);
       delete boxes[id];
@@ -49,16 +49,16 @@ window.__UITools = {
   },
 
   setBoxColor: function (id, color) {
-    var el = boxes[id];
+    const el = boxes[id];
     if (!el) return;
     el.style.outline = '1px solid ' + color;
-    var crosshairs = el.querySelectorAll('.__rl-box-crosshair');
-    for (var i = 0; i < crosshairs.length; i++) {
+    const crosshairs = el.querySelectorAll('.__rl-box-crosshair');
+    for (let i = 0; i < crosshairs.length; i++) {
       crosshairs[i].style.background = color;
     }
-    var handles = el.querySelectorAll('.__rl-box-handle');
-    for (var j = 0; j < handles.length; j++) {
-      var h = handles[j];
+    const handles = el.querySelectorAll('.__rl-box-handle');
+    for (let j = 0; j < handles.length; j++) {
+      const h = handles[j];
       if (h.dataset.resize && h.dataset.resize.length === 2) {
         h.style.background = color;
       }
@@ -67,7 +67,7 @@ window.__UITools = {
 
   clearBoxes: function () {
     Object.keys(boxes).forEach(function (id) {
-      var el = boxes[id];
+      const el = boxes[id];
       el.parentNode && el.parentNode.removeChild(el);
     });
     boxes = {};
@@ -77,12 +77,12 @@ window.__UITools = {
 
   clearAll: function () {
     Object.keys(guides).forEach(function (id) {
-      var el = guides[id];
+      const el = guides[id];
       el.parentNode && el.parentNode.removeChild(el);
     });
     guides = {};
     Object.keys(boxes).forEach(function (id) {
-      var el = boxes[id];
+      const el = boxes[id];
       el.parentNode && el.parentNode.removeChild(el);
     });
     boxes = {};
@@ -95,9 +95,9 @@ window.__UITools = {
   },
 
   setRulers: function (visible) {
-    var ids = ['__rl-ruler-top', '__rl-ruler-left', '__rl-ruler-corner'];
+    const ids = ['__rl-ruler-top', '__rl-ruler-left', '__rl-ruler-corner'];
     ids.forEach(function (id) {
-      var el = document.getElementById(id);
+      const el = document.getElementById(id);
       if (el) el.style.display = visible ? '' : 'none';
     });
   },

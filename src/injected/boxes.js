@@ -1,7 +1,7 @@
 // ─── Box creation ─────────────────────────────────────────────────────────
 
 function createBox(id, x, y, w, h, color) {
-  var el = document.createElement('div');
+  let el = document.createElement('div');
   el.className = '__rl-box';
   el.dataset.id = id;
   el.style.cssText = [
@@ -17,7 +17,7 @@ function createBox(id, x, y, w, h, color) {
   ].join(';');
 
   // Central drag zone — inset 8px from edges, safe from all resize handle overlap
-  var dragZone = document.createElement('div');
+  let dragZone = document.createElement('div');
   dragZone.className = '__rl-box-drag';
   dragZone.style.cssText = [
     'position:absolute',
@@ -32,7 +32,7 @@ function createBox(id, x, y, w, h, color) {
   el.appendChild(dragZone);
 
   // Center crosshair — horizontal
-  var crossH = document.createElement('div');
+  let crossH = document.createElement('div');
   crossH.className = '__rl-box-crosshair';
   crossH.style.cssText = [
     'position:absolute',
@@ -47,7 +47,7 @@ function createBox(id, x, y, w, h, color) {
   ].join(';');
 
   // Center crosshair — vertical
-  var crossV = document.createElement('div');
+  let crossV = document.createElement('div');
   crossV.className = '__rl-box-crosshair';
   crossV.style.cssText = [
     'position:absolute',
@@ -62,7 +62,7 @@ function createBox(id, x, y, w, h, color) {
   ].join(';');
 
   // Resize handles — corners (visible) and edges (transparent, cursor only)
-  var handleDefs = [
+  let handleDefs = [
     { dir: 'nw', css: 'top:-4px;left:-4px;width:8px;height:8px;cursor:nwse-resize', corner: true },
     { dir: 'ne', css: 'top:-4px;right:-4px;width:8px;height:8px;cursor:nesw-resize', corner: true },
     { dir: 'se', css: 'bottom:-4px;right:-4px;width:8px;height:8px;cursor:nwse-resize', corner: true },
@@ -73,7 +73,7 @@ function createBox(id, x, y, w, h, color) {
     { dir: 'w',  css: 'top:8px;left:-4px;bottom:8px;width:8px;cursor:ew-resize', corner: false },
   ];
   handleDefs.forEach(function (def) {
-    var handle = document.createElement('div');
+    let handle = document.createElement('div');
     handle.className = '__rl-box-handle';
     handle.dataset.resize = def.dir;
     handle.style.cssText = [
@@ -88,7 +88,7 @@ function createBox(id, x, y, w, h, color) {
   });
 
   // Dimension label — shown below the box
-  var label = document.createElement('span');
+  let label = document.createElement('span');
   label.className = '__rl-box-label';
   label.style.cssText = [
     'position:absolute',
@@ -117,18 +117,18 @@ function attachMoveHandler(strip, el, id) {
     e.preventDefault();
     e.stopPropagation();
 
-    var startX = e.clientX;
-    var startY = e.clientY;
-    var origX = parseInt(el.style.left) || 0;
-    var origY = parseInt(el.style.top) || 0;
+    const startX = e.clientX;
+    const startY = e.clientY;
+    const origX = parseInt(el.style.left) || 0;
+    const origY = parseInt(el.style.top) || 0;
 
     window.__UITools.isDragging = true;
 
     function onMove(e) {
-      var newX = origX + (e.clientX - startX);
-      var newY = origY + (e.clientY - startY);
-      var w = parseInt(el.style.width);
-      var h = parseInt(el.style.height);
+      const newX = origX + (e.clientX - startX);
+      const newY = origY + (e.clientY - startY);
+      const w = parseInt(el.style.width);
+      const h = parseInt(el.style.height);
       el.style.left = newX + 'px';
       el.style.top = newY + 'px';
       window.__UITools.pendingUpdate = { type: 'box', id: id, x: newX, y: newY, w: w, h: h };
@@ -152,20 +152,20 @@ function attachResizeHandler(handle, el, id) {
     e.preventDefault();
     e.stopPropagation();
 
-    var dir = handle.dataset.resize;
-    var startX = e.clientX;
-    var startY = e.clientY;
-    var origX = parseInt(el.style.left) || 0;
-    var origY = parseInt(el.style.top) || 0;
-    var origW = parseInt(el.style.width) || 100;
-    var origH = parseInt(el.style.height) || 100;
+    const dir = handle.dataset.resize;
+    const startX = e.clientX;
+    const startY = e.clientY;
+    const origX = parseInt(el.style.left) || 0;
+    const origY = parseInt(el.style.top) || 0;
+    const origW = parseInt(el.style.width) || 100;
+    const origH = parseInt(el.style.height) || 100;
 
     window.__UITools.isDragging = true;
 
     function onMove(e) {
-      var dx = e.clientX - startX;
-      var dy = e.clientY - startY;
-      var newX = origX, newY = origY, newW = origW, newH = origH;
+      const dx = e.clientX - startX;
+      const dy = e.clientY - startY;
+      let newX = origX, newY = origY, newW = origW, newH = origH;
 
       if (dir.indexOf('e') !== -1) { newW = Math.max(20, origW + dx); }
       if (dir.indexOf('w') !== -1) { newW = Math.max(20, origW - dx); newX = origX + origW - newW; }
@@ -177,7 +177,7 @@ function attachResizeHandler(handle, el, id) {
       el.style.width = newW + 'px';
       el.style.height = newH + 'px';
 
-      var label = el.querySelector('.__rl-box-label');
+      const label = el.querySelector('.__rl-box-label');
       if (label) label.textContent = newW + ' \u00d7 ' + newH;
 
       window.__UITools.pendingUpdate = { type: 'box', id: id, x: newX, y: newY, w: newW, h: newH };
