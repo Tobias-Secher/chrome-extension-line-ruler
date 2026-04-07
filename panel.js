@@ -185,7 +185,15 @@
           try { update = JSON.parse(json); } catch (e) { return; }
           if (!update) return;
 
-          if (update.type === 'box') {
+          if (update.type === 'newGuide') {
+            const color = COLORS[(state.nextId - 1) % COLORS.length];
+            state.nextId++;
+            const id = update.id;
+            state.guides.push({ id, axis: update.axis, pos: update.pos, color });
+            state.lastAddedId = id;
+            evalInPage('__RulerLines.setColor(' + JSON.stringify(id) + ',' + JSON.stringify(color) + ')');
+            renderGuideList();
+          } else if (update.type === 'box') {
             var box = state.boxes.find(function (b) { return b.id === update.id; });
             if (box) {
               box.x = update.x; box.y = update.y;

@@ -44,7 +44,8 @@
       'width:calc(100vw - ' + RULER_SIZE + 'px)',
       'height:' + RULER_SIZE + 'px',
       'background:' + RULER_BG,
-      'pointer-events:none',
+      'pointer-events:all',
+      'cursor:ns-resize',
       'overflow:hidden',
     ].join(';');
 
@@ -97,7 +98,8 @@
       'width:' + RULER_SIZE + 'px',
       'height:100vh',
       'background:' + RULER_BG,
-      'pointer-events:none',
+      'pointer-events:all',
+      'cursor:ew-resize',
       'overflow:hidden',
     ].join(';');
 
@@ -162,6 +164,60 @@
     host.appendChild(buildRulerLeft());
     host.appendChild(buildCornerCap());
   }
+
+  // ─── Ruler drag-to-create ─────────────────────────────────────────────────
+
+  function attachRulerDrag() {
+    var top = document.getElementById('__rl-ruler-top');
+    var left = document.getElementById('__rl-ruler-left');
+    if (!top || !left) return;
+
+    function startDrag(e, axis) {
+      e.preventDefault();
+      e.stopPropagation();
+      var isH = axis === 'h';
+      var pos = isH ? e.clientY : e.clientX;
+      var tempId = '_d' + Date.now();
+
+      var el = createGuide(tempId, axis, pos, '#888');
+      guides[tempId] = el;
+      host.appendChild(el);
+      window.__RulerLines.isDragging = true;
+
+      function onMove(ev) {
+        var newPos = isH ? ev.clientY : ev.clientX;
+        newPos = Math.max(0, newPos);
+        el.style[isH ? 'top' : 'left'] = newPos + 'px';
+        var lbl = el.querySelector('.__rl-label');
+        if (lbl) lbl.textContent = Math.round(newPos) + 'px';
+      }
+
+      function onUp(ev) {
+        window.__RulerLines.isDragging = false;
+        document.removeEventListener('mousemove', onMove, true);
+        document.removeEventListener('mouseup', onUp, true);
+        var finalPos = isH ? ev.clientY : ev.clientX;
+        if (finalPos <= RULER_SIZE) {
+          window.__RulerLines.removeGuide(tempId);
+        } else {
+          window.__RulerLines.pendingUpdate = {
+            type: 'newGuide',
+            id: tempId,
+            axis: axis,
+            pos: Math.round(finalPos),
+          };
+        }
+      }
+
+      document.addEventListener('mousemove', onMove, true);
+      document.addEventListener('mouseup', onUp, true);
+    }
+
+    top.addEventListener('mousedown', function (e) { startDrag(e, 'h'); });
+    left.addEventListener('mousedown', function (e) { startDrag(e, 'v'); });
+  }
+
+  attachRulerDrag();
 
   // ─── Guide creation ───────────────────────────────────────────────────────
 
