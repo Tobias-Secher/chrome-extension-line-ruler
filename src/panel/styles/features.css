@@ -1,0 +1,105 @@
+/* ─── Color toast ────────────────────────────────────────────────────────── */
+
+#color-toast {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 8px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-panel);
+  font-size: 10px;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+
+#color-toast.hidden {
+  display: none;
+}
+
+.hint-msg {
+  font-size: 10px;
+  color: var(--text-dim);
+  padding: 4px 8px;
+  font-style: italic;
+}
+.hint-msg.hidden { display: none; }
+
+.color-toast-swatch {
+  width: 14px;
+  height: 14px;
+  border-radius: 2px;
+  border: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.color-toast-hex {
+  color: var(--text-accent);
+  flex: 1;
+}
+
+.color-toast-copy {
+  font-size: 9px;
+  color: var(--text-dim);
+}
+
+/* ─── Breakpoints row ────────────────────────────────────────────────────── */
+
+#breakpoints-row {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  padding: 4px 8px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-panel);
+}
+
+#bp-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+  flex: 1;
+}
+
+#btn-bp-scan {
+  font-size: 11px;
+  padding: 2px 5px;
+  color: var(--text-dim);
+  background: transparent;
+  border-color: transparent;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+#btn-bp-scan:hover {
+  color: var(--text);
+  background: var(--bg-hover);
+  border-color: var(--border);
+}
+
+#bp-label.bp-label-fallback {
+  color: var(--text-dim);
+  text-decoration: underline dotted;
+  cursor: help;
+}
+
+.btn-bp {
+  font-family: monospace;
+  font-size: 10px;
+  background: var(--bg-item);
+  color: var(--text-dim);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 2px 5px;
+  cursor: pointer;
+  transition: background 80ms, color 80ms, border-color 80ms;
+}
+
+.btn-bp:hover {
+  background: var(--bg-hover);
+  color: var(--text);
+  border-color: #3e3e48;
+}
+
+.btn-bp:active {
+  background: var(--bg-active);
+}
