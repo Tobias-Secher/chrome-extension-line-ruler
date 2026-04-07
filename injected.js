@@ -182,7 +182,7 @@
       var el = createGuide(tempId, axis, pos, '#888');
       guides[tempId] = el;
       host.appendChild(el);
-      window.__RulerLines.isDragging = true;
+      window.__UITools.isDragging = true;
 
       function onMove(ev) {
         var newPos = isH ? ev.clientY : ev.clientX;
@@ -193,14 +193,14 @@
       }
 
       function onUp(ev) {
-        window.__RulerLines.isDragging = false;
+        window.__UITools.isDragging = false;
         document.removeEventListener('mousemove', onMove, true);
         document.removeEventListener('mouseup', onUp, true);
         var finalPos = isH ? ev.clientY : ev.clientX;
         if (finalPos <= RULER_SIZE) {
-          window.__RulerLines.removeGuide(tempId);
+          window.__UITools.removeGuide(tempId);
         } else {
-          window.__RulerLines.pendingUpdate = {
+          window.__UITools.pendingUpdate = {
             type: 'newGuide',
             id: tempId,
             axis: axis,
@@ -278,7 +278,7 @@
     handle.addEventListener('mousedown', function (e) {
       e.preventDefault();
       e.stopPropagation();
-      window.__RulerLines.isDragging = true;
+      window.__UITools.isDragging = true;
 
       function onMove(e) {
         var pos = isH ? e.clientY : e.clientX;
@@ -286,11 +286,11 @@
         guideEl.style[isH ? 'top' : 'left'] = pos + 'px';
         var label = guideEl.querySelector('.__rl-label');
         if (label) label.textContent = pos + 'px';
-        window.__RulerLines.pendingUpdate = { type: 'guide', id: id, pos: pos };
+        window.__UITools.pendingUpdate = { type: 'guide', id: id, pos: pos };
       }
 
       function onUp() {
-        window.__RulerLines.isDragging = false;
+        window.__UITools.isDragging = false;
         document.removeEventListener('mousemove', onMove, true);
         document.removeEventListener('mouseup', onUp, true);
       }
@@ -424,7 +424,7 @@
       var origX = parseInt(el.style.left) || 0;
       var origY = parseInt(el.style.top) || 0;
 
-      window.__RulerLines.isDragging = true;
+      window.__UITools.isDragging = true;
 
       function onMove(e) {
         var newX = origX + (e.clientX - startX);
@@ -433,11 +433,11 @@
         var h = parseInt(el.style.height);
         el.style.left = newX + 'px';
         el.style.top = newY + 'px';
-        window.__RulerLines.pendingUpdate = { type: 'box', id: id, x: newX, y: newY, w: w, h: h };
+        window.__UITools.pendingUpdate = { type: 'box', id: id, x: newX, y: newY, w: w, h: h };
       }
 
       function onUp() {
-        window.__RulerLines.isDragging = false;
+        window.__UITools.isDragging = false;
         document.removeEventListener('mousemove', onMove, true);
         document.removeEventListener('mouseup', onUp, true);
       }
@@ -462,7 +462,7 @@
       var origW = parseInt(el.style.width) || 100;
       var origH = parseInt(el.style.height) || 100;
 
-      window.__RulerLines.isDragging = true;
+      window.__UITools.isDragging = true;
 
       function onMove(e) {
         var dx = e.clientX - startX;
@@ -482,11 +482,11 @@
         var label = el.querySelector('.__rl-box-label');
         if (label) label.textContent = newW + ' \u00d7 ' + newH;
 
-        window.__RulerLines.pendingUpdate = { type: 'box', id: id, x: newX, y: newY, w: newW, h: newH };
+        window.__UITools.pendingUpdate = { type: 'box', id: id, x: newX, y: newY, w: newW, h: newH };
       }
 
       function onUp() {
-        window.__RulerLines.isDragging = false;
+        window.__UITools.isDragging = false;
         document.removeEventListener('mousemove', onMove, true);
         document.removeEventListener('mouseup', onUp, true);
       }
@@ -505,7 +505,7 @@
 
   // ─── Public API ───────────────────────────────────────────────────────────
 
-  window.__RulerLines = {
+  window.__UITools = {
     isDragging: false,
     pendingUpdate: null,
     _bmEls: [],

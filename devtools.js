@@ -1,5 +1,5 @@
 chrome.devtools.panels.create(
-  'Ruler Lines',
+  'UI Tools',
   'icons/icon16.png',
   'panel.html',
   function() {}

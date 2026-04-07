@@ -30,7 +30,7 @@
       .then(function (source) {
         chrome.devtools.inspectedWindow.eval(source, function (result, err) {
           if (err) {
-            console.error('Ruler Lines: runtime injection failed', err);
+            console.error('UI Tools: runtime injection failed', err);
             return;
           }
           state.runtimeReady = true;
@@ -63,7 +63,7 @@
     state.guides.push({ id, axis, pos, color });
     state.lastAddedId = id;
     evalInPage(
-      '__RulerLines.addGuide(' +
+      '__UITools.addGuide(' +
         JSON.stringify(id) + ',' +
         JSON.stringify(axis) + ',' +
         pos + ',' +
@@ -76,7 +76,7 @@
 
   function removeGuide(id) {
     state.guides = state.guides.filter(function (g) { return g.id !== id; });
-    evalInPage('__RulerLines.removeGuide(' + JSON.stringify(id) + ')');
+    evalInPage('__UITools.removeGuide(' + JSON.stringify(id) + ')');
     renderGuideList();
     if (state.guides.length === 0 && state.boxes.length === 0) stopPolling();
   }
@@ -84,7 +84,7 @@
   function setGuideColor(id, color) {
     const guide = state.guides.find(function (g) { return g.id === id; });
     if (guide) guide.color = color;
-    evalInPage('__RulerLines.setColor(' + JSON.stringify(id) + ',' + JSON.stringify(color) + ')');
+    evalInPage('__UITools.setColor(' + JSON.stringify(id) + ',' + JSON.stringify(color) + ')');
     // Update the row border color live
     var row = document.querySelector('.guide-row[data-id="' + id + '"]');
     if (row) row.style.borderLeftColor = color;
@@ -100,7 +100,7 @@
     state.boxes.push({ id, x: null, y: null, w, h, color });
     state.lastAddedId = id;
     evalInPage(
-      'JSON.stringify(__RulerLines.addBox(' +
+      'JSON.stringify(__UITools.addBox(' +
         JSON.stringify(id) + ', null, null,' +
         w + ',' + h + ',' +
         JSON.stringify(color) +
@@ -122,7 +122,7 @@
 
   function removeBox(id) {
     state.boxes = state.boxes.filter(function (b) { return b.id !== id; });
-    evalInPage('__RulerLines.removeBox(' + JSON.stringify(id) + ')');
+    evalInPage('__UITools.removeBox(' + JSON.stringify(id) + ')');
     renderBoxList();
     if (state.guides.length === 0 && state.boxes.length === 0) stopPolling();
   }
@@ -130,7 +130,7 @@
   function setBoxColor(id, color) {
     const box = state.boxes.find(function (b) { return b.id === id; });
     if (box) box.color = color;
-    evalInPage('__RulerLines.setBoxColor(' + JSON.stringify(id) + ',' + JSON.stringify(color) + ')');
+    evalInPage('__UITools.setBoxColor(' + JSON.stringify(id) + ',' + JSON.stringify(color) + ')');
     // Update the row border color live
     var row = document.querySelector('.guide-row[data-id="' + id + '"]');
     if (row) row.style.borderLeftColor = color;
@@ -140,7 +140,7 @@
 
   function applyGrid() {
     evalInPage(
-      '__RulerLines.setGrid(' +
+      '__UITools.setGrid(' +
         state.grid + ',' +
         state.gridCols + ',' +
         state.gridGap + ',' +
@@ -162,11 +162,11 @@
     document.getElementById('btn-spacing').classList.remove('active');
     document.getElementById('btn-font').classList.remove('active');
     document.getElementById('grid-settings').classList.add('hidden');
-    evalInPage('__RulerLines.clearAll()');
-    evalInPage('__RulerLines.setRulers(true)');
-    evalInPage('__RulerLines.setGrid(false)');
-    evalInPage('__RulerLines.clearSpacing()');
-    evalInPage('__RulerLines.setFontInspector(false)');
+    evalInPage('__UITools.clearAll()');
+    evalInPage('__UITools.setRulers(true)');
+    evalInPage('__UITools.setGrid(false)');
+    evalInPage('__UITools.clearSpacing()');
+    evalInPage('__UITools.setFontInspector(false)');
     renderGuideList();
     renderBoxList();
     stopPolling();
@@ -178,7 +178,7 @@
     if (state.polling) return;
     state.polling = setInterval(function () {
       chrome.devtools.inspectedWindow.eval(
-        'window.__RulerLines ? JSON.stringify(window.__RulerLines.pendingUpdate) : null',
+        'window.__UITools ? JSON.stringify(window.__UITools.pendingUpdate) : null',
         function (json) {
           if (!json || json === 'null') return;
           var update;
@@ -191,7 +191,7 @@
             const id = update.id;
             state.guides.push({ id, axis: update.axis, pos: update.pos, color });
             state.lastAddedId = id;
-            evalInPage('__RulerLines.setColor(' + JSON.stringify(id) + ',' + JSON.stringify(color) + ')');
+            evalInPage('__UITools.setColor(' + JSON.stringify(id) + ',' + JSON.stringify(color) + ')');
             renderGuideList();
           } else if (update.type === 'box') {
             var box = state.boxes.find(function (b) { return b.id === update.id; });
@@ -209,7 +209,7 @@
             }
           }
 
-          chrome.devtools.inspectedWindow.eval('__RulerLines.clearPendingUpdate()');
+          chrome.devtools.inspectedWindow.eval('__UITools.clearPendingUpdate()');
         }
       );
     }, 16);
@@ -248,7 +248,7 @@
     state.guides.push({ id: id, axis: axis, pos: pos, color: color });
     state.lastAddedId = id;
     evalInPage(
-      '__RulerLines.addGuide(' +
+      '__UITools.addGuide(' +
         JSON.stringify(id) + ',' +
         JSON.stringify(axis) + ',' +
         pos + ',' +
@@ -438,7 +438,7 @@
           return;
         }
         hint.classList.add('hidden');
-        evalInPage('__RulerLines.setSpacing(' + json + ')');
+        evalInPage('__UITools.setSpacing(' + json + ')');
       }
     );
   }
@@ -448,7 +448,7 @@
       '(function(){if(!$0)return null;var r=$0.getBoundingClientRect();var s=window.getComputedStyle($0);return JSON.stringify({x:r.left,y:r.top,w:r.width,h:r.height,pt:parseFloat(s.paddingTop),pr:parseFloat(s.paddingRight),pb:parseFloat(s.paddingBottom),pl:parseFloat(s.paddingLeft),bt:parseFloat(s.borderTopWidth),br:parseFloat(s.borderRightWidth),bb:parseFloat(s.borderBottomWidth),bl:parseFloat(s.borderLeftWidth),mt:parseFloat(s.marginTop),mr:parseFloat(s.marginRight),mb:parseFloat(s.marginBottom),ml:parseFloat(s.marginLeft)});})();',
       function (json) {
         if (!json || json === 'null') return;
-        evalInPage('__RulerLines.setBoxModel(' + json + ')');
+        evalInPage('__UITools.setBoxModel(' + json + ')');
       }
     );
   }
@@ -466,19 +466,19 @@
     if (state.boxModel) {
       showBoxModel();
     } else {
-      evalInPage('__RulerLines.clearBoxModel()');
+      evalInPage('__UITools.clearBoxModel()');
     }
   });
 
   document.getElementById('chk-rulers').addEventListener('change', function () {
     state.rulers = this.checked;
-    evalInPage('__RulerLines.setRulers(' + state.rulers + ')');
+    evalInPage('__UITools.setRulers(' + state.rulers + ')');
   });
 
   document.getElementById('btn-crosshair').addEventListener('click', function () {
     state.crosshair = !state.crosshair;
     this.classList.toggle('active', state.crosshair);
-    evalInPage('__RulerLines.setCrosshair(' + state.crosshair + ')');
+    evalInPage('__UITools.setCrosshair(' + state.crosshair + ')');
   });
 
   document.getElementById('btn-grid').addEventListener('click', function () {
@@ -586,7 +586,7 @@
     if (guide.axis === 'v' && (e.key === 'ArrowUp' || e.key === 'ArrowDown')) return;
 
     guide.pos = Math.max(0, guide.pos + delta);
-    evalInPage('__RulerLines.nudgeGuide(' + JSON.stringify(state.selectedId) + ',' + delta + ')');
+    evalInPage('__UITools.nudgeGuide(' + JSON.stringify(state.selectedId) + ',' + delta + ')');
     updateCoordDisplay(state.selectedId, guide.pos);
   });
 
@@ -627,7 +627,7 @@
       showSpacing();
     } else {
       document.getElementById('spacing-hint').classList.add('hidden');
-      evalInPage('__RulerLines.clearSpacing()');
+      evalInPage('__UITools.clearSpacing()');
     }
   });
 
@@ -636,7 +636,7 @@
   document.getElementById('btn-font').addEventListener('click', function () {
     state.fontInspector = !state.fontInspector;
     this.classList.toggle('active', state.fontInspector);
-    evalInPage('__RulerLines.setFontInspector(' + state.fontInspector + ')');
+    evalInPage('__UITools.setFontInspector(' + state.fontInspector + ')');
   });
 
   chrome.devtools.panels.elements.onSelectionChanged.addListener(function () {
