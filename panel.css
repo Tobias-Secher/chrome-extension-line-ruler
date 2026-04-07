@@ -188,6 +188,14 @@ button:active {
   display: none;
 }
 
+.hint-msg {
+  font-size: 10px;
+  color: var(--text-dim);
+  padding: 4px 8px;
+  font-style: italic;
+}
+.hint-msg.hidden { display: none; }
+
 .color-toast-swatch {
   width: 14px;
   height: 14px;

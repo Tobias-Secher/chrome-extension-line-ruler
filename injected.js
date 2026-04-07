@@ -725,7 +725,7 @@
       var rightEl = r0.x < r1.x ? r1 : r0;
       var hGap = rightEl.x - (leftEl.x + leftEl.w);
       if (Math.abs(hGap) > 1) {
-        var midY = Math.min(r0.y + r0.h / 2, r1.y + r1.h / 2);
+        var midY = (r0.y + r0.h / 2 + r1.y + r1.h / 2) / 2;
         makeLine(leftEl.x + leftEl.w, midY, Math.abs(rightEl.x - (leftEl.x + leftEl.w)), true, hGap, hGap < 0);
       }
 
@@ -734,7 +734,7 @@
       var botEl = r0.y < r1.y ? r1 : r0;
       var vGap = botEl.y - (topEl.y + topEl.h);
       if (Math.abs(vGap) > 1) {
-        var midX = Math.min(r0.x + r0.w / 2, r1.x + r1.w / 2);
+        var midX = (r0.x + r0.w / 2 + r1.x + r1.w / 2) / 2;
         makeLine(midX, topEl.y + topEl.h, Math.abs(botEl.y - (topEl.y + topEl.h)), false, vGap, vGap < 0);
       }
     },

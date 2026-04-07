@@ -432,7 +432,12 @@
         '});' +
       '})()',
       function (json) {
-        if (!json || json === 'null') return;
+        var hint = document.getElementById('spacing-hint');
+        if (!json || json === 'null') {
+          hint.classList.remove('hidden');
+          return;
+        }
+        hint.classList.add('hidden');
         evalInPage('__RulerLines.setSpacing(' + json + ')');
       }
     );
@@ -621,6 +626,7 @@
     if (state.spacing) {
       showSpacing();
     } else {
+      document.getElementById('spacing-hint').classList.add('hidden');
       evalInPage('__RulerLines.clearSpacing()');
     }
   });
