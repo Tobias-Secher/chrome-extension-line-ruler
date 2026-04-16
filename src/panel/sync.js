@@ -31,6 +31,10 @@ export function ensurePolling() {
         } else if (update.type === 'inspectExit') {
           state.inspect = false;
           document.getElementById('btn-inspect').classList.remove('active');
+        } else if (update.type === 'boxModelPickerExit') {
+          state.boxModel = false;
+          document.getElementById('btn-box-model').classList.remove('active');
+          evalInPage('__UITools.clearBoxModel()');
         } else {
           var guide = state.guides.find(function (g) { return g.id === update.id; });
           if (guide) {

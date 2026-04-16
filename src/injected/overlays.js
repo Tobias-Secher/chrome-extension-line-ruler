@@ -10,22 +10,22 @@ function setBoxModel(d) {
     {
       t: d.y - d.mt, l: d.x - d.ml,
       w: d.w + d.ml + d.mr, h: d.h + d.mt + d.mb,
-      bg: 'rgba(248,192,125,0.2)',
+      bg: 'rgba(246,152,51,0.35)',
     },
     {
       t: d.y, l: d.x, w: d.w, h: d.h,
-      bg: 'rgba(255,232,163,0.2)',
+      bg: 'rgba(255,213,79,0.3)',
     },
     {
       t: d.y + d.bt, l: d.x + d.bl,
       w: d.w - d.bl - d.br, h: d.h - d.bt - d.bb,
-      bg: 'rgba(147,196,125,0.2)',
+      bg: 'rgba(76,175,80,0.35)',
     },
     {
       t: d.y + d.bt + d.pt, l: d.x + d.bl + d.pl,
       w: d.w - d.bl - d.br - d.pl - d.pr,
       h: d.h - d.bt - d.bb - d.pt - d.pb,
-      bg: 'rgba(111,168,220,0.2)',
+      bg: 'rgba(66,133,244,0.35)',
     },
   ];
 
@@ -50,6 +50,121 @@ function setBoxModel(d) {
 function clearBoxModel() {
   _bmEls.forEach(function (el) { el.parentNode && el.parentNode.removeChild(el); });
   _bmEls = [];
+}
+
+// ─── Box Model Picker ─────────────────────────────────────────────────────
+
+var _bmPickerActive = false;
+var _bmPickerInterceptor = null;
+var _bmPickerHighlight = null;
+var _bmPickerHandlers = {};
+
+function setBoxModelPicker(enable) {
+  if (enable && _bmPickerActive) return;
+  if (!enable && !_bmPickerActive) return;
+
+  if (enable) {
+    _bmPickerActive = true;
+
+    _bmPickerInterceptor = document.createElement('div');
+    _bmPickerInterceptor.id = '__rl-bm-picker-interceptor';
+    _bmPickerInterceptor.style.cssText = [
+      'position:fixed',
+      'top:0', 'left:0',
+      'width:100vw', 'height:100vh',
+      'pointer-events:all',
+      'cursor:crosshair',
+      'background:transparent',
+      'z-index:2147483646',
+    ].join(';');
+    host.appendChild(_bmPickerInterceptor);
+
+    _bmPickerHandlers.mousemove = _bmPickerOnMouseMove;
+    _bmPickerHandlers.click = _bmPickerOnClick;
+    _bmPickerHandlers.keydown = _bmPickerOnKeyDown;
+
+    _bmPickerInterceptor.addEventListener('mousemove', _bmPickerHandlers.mousemove);
+    _bmPickerInterceptor.addEventListener('click', _bmPickerHandlers.click);
+    document.addEventListener('keydown', _bmPickerHandlers.keydown, true);
+  } else {
+    _bmPickerActive = false;
+    _bmPickerClearHighlight();
+    if (_bmPickerInterceptor) {
+      _bmPickerInterceptor.removeEventListener('mousemove', _bmPickerHandlers.mousemove);
+      _bmPickerInterceptor.removeEventListener('click', _bmPickerHandlers.click);
+      _bmPickerInterceptor.parentNode && _bmPickerInterceptor.parentNode.removeChild(_bmPickerInterceptor);
+      _bmPickerInterceptor = null;
+    }
+    document.removeEventListener('keydown', _bmPickerHandlers.keydown, true);
+    _bmPickerHandlers = {};
+  }
+}
+
+function _bmPickerElementFromPoint(x, y) {
+  _bmPickerInterceptor.style.pointerEvents = 'none';
+  var el = document.elementFromPoint(x, y);
+  _bmPickerInterceptor.style.pointerEvents = 'all';
+  if (el && host.contains(el)) return null;
+  return el;
+}
+
+function _bmPickerOnMouseMove(e) {
+  var el = _bmPickerElementFromPoint(e.clientX, e.clientY);
+  _bmPickerClearHighlight();
+  if (!el) return;
+
+  var r = el.getBoundingClientRect();
+  _bmPickerHighlight = document.createElement('div');
+  _bmPickerHighlight.style.cssText = [
+    'position:fixed',
+    'top:' + r.top + 'px',
+    'left:' + r.left + 'px',
+    'width:' + r.width + 'px',
+    'height:' + r.height + 'px',
+    'outline:2px solid rgba(59,130,246,0.9)',
+    'background:rgba(59,130,246,0.08)',
+    'pointer-events:none',
+    'z-index:2147483645',
+    'box-sizing:border-box',
+  ].join(';');
+  host.appendChild(_bmPickerHighlight);
+}
+
+function _bmPickerOnClick(e) {
+  e.preventDefault();
+  e.stopPropagation();
+
+  var el = _bmPickerElementFromPoint(e.clientX, e.clientY);
+  if (!el) return;
+
+  var r = el.getBoundingClientRect();
+  var s = window.getComputedStyle(el);
+  var d = {
+    x: r.left, y: r.top, w: r.width, h: r.height,
+    pt: parseFloat(s.paddingTop), pr: parseFloat(s.paddingRight),
+    pb: parseFloat(s.paddingBottom), pl: parseFloat(s.paddingLeft),
+    bt: parseFloat(s.borderTopWidth), br: parseFloat(s.borderRightWidth),
+    bb: parseFloat(s.borderBottomWidth), bl: parseFloat(s.borderLeftWidth),
+    mt: parseFloat(s.marginTop), mr: parseFloat(s.marginRight),
+    mb: parseFloat(s.marginBottom), ml: parseFloat(s.marginLeft),
+  };
+  setBoxModel(d);
+}
+
+function _bmPickerOnKeyDown(e) {
+  if (e.key === 'Escape' && _bmPickerActive) {
+    e.preventDefault();
+    e.stopPropagation();
+    setBoxModelPicker(false);
+    window.__UITools.pendingUpdate = { type: 'boxModelPickerExit' };
+  }
+}
+
+function _bmPickerClearHighlight() {
+  if (_bmPickerHighlight) {
+    _bmPickerHighlight.parentNode && _bmPickerHighlight.parentNode.removeChild(_bmPickerHighlight);
+    _bmPickerHighlight = null;
+  }
 }
 
 // ─── Nudge ────────────────────────────────────────────────────────────────
