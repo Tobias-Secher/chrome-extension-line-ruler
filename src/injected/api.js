@@ -86,7 +86,7 @@ window.__UITools = {
       el.parentNode && el.parentNode.removeChild(el);
     });
     boxes = {};
-    clearSpacing();
+    setInspectMode(false);
     setFontInspector(false);
   },
 
@@ -107,8 +107,7 @@ window.__UITools = {
   setBoxModel: setBoxModel,
   clearBoxModel: clearBoxModel,
   nudgeGuide: nudgeGuide,
-  setSpacing: setSpacing,
-  clearSpacing: clearSpacing,
+  setInspectMode: setInspectMode,
   setFontInspector: setFontInspector,
   setGrid: setGrid,
   setCrosshair: setCrosshair,

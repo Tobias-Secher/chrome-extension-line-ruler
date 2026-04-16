@@ -13,7 +13,7 @@ export const state = {
   gridCols: 12,
   gridGap: 20,
   gridColor: '#4a9eff',
-  spacing: false,
+  inspect: false,
   fontInspector: false,
   selectedId: null,
   lastAddedId: null,

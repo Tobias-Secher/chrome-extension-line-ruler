@@ -28,6 +28,9 @@ export function ensurePolling() {
             box.w = update.w; box.h = update.h;
             updateBoxDisplay(update.id, update.w, update.h);
           }
+        } else if (update.type === 'inspectExit') {
+          state.inspect = false;
+          document.getElementById('btn-inspect').classList.remove('active');
         } else {
           var guide = state.guides.find(function (g) { return g.id === update.id; });
           if (guide) {

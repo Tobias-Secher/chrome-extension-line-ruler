@@ -20,18 +20,18 @@ export function clearAll() {
   state.boxes = [];
   state.rulers = true;
   state.grid = false;
-  state.spacing = false;
+  state.inspect = false;
   state.fontInspector = false;
   state.selectedId = null;
   document.getElementById('chk-rulers').checked = true;
   document.getElementById('btn-grid').classList.remove('active');
-  document.getElementById('btn-spacing').classList.remove('active');
+  document.getElementById('btn-inspect').classList.remove('active');
   document.getElementById('btn-font').classList.remove('active');
   document.getElementById('grid-settings').classList.add('hidden');
   evalInPage('__UITools.clearAll()');
   evalInPage('__UITools.setRulers(true)');
   evalInPage('__UITools.setGrid(false)');
-  evalInPage('__UITools.clearSpacing()');
+  evalInPage('__UITools.setInspectMode(false)');
   evalInPage('__UITools.setFontInspector(false)');
   renderGuideList();
   renderBoxList();
@@ -48,26 +48,9 @@ export function showBoxModel() {
   );
 }
 
-export function showSpacing() {
-  evalInPage(
-    '(function(){' +
-      'if(!$0||!$1)return null;' +
-      'var r0=$0.getBoundingClientRect(),r1=$1.getBoundingClientRect();' +
-      'return JSON.stringify({' +
-        'r0:{x:r0.left,y:r0.top,w:r0.width,h:r0.height},' +
-        'r1:{x:r1.left,y:r1.top,w:r1.width,h:r1.height}' +
-      '});' +
-    '})()',
-    function (json) {
-      var hint = document.getElementById('spacing-hint');
-      if (!json || json === 'null') {
-        hint.classList.remove('hidden');
-        return;
-      }
-      hint.classList.add('hidden');
-      evalInPage('__UITools.setSpacing(' + json + ')');
-    }
-  );
+export function toggleInspect(enable) {
+  state.inspect = enable;
+  evalInPage('__UITools.setInspectMode(' + enable + ')');
 }
 
 // ─── Breakpoint presets ───────────────────────────────────────────────────
