@@ -108,6 +108,7 @@ window.__UITools = {
   clearBoxModel: clearBoxModel,
   nudgeGuide: nudgeGuide,
   setInspectMode: setInspectMode,
+  setBoxModelPicker: setBoxModelPicker,
   setFontInspector: setFontInspector,
   setGrid: setGrid,
   setCrosshair: setCrosshair,

@@ -20,10 +20,12 @@ export function clearAll() {
   state.boxes = [];
   state.rulers = true;
   state.grid = false;
+  state.boxModel = false;
   state.inspect = false;
   state.fontInspector = false;
   state.selectedId = null;
   document.getElementById('chk-rulers').checked = true;
+  document.getElementById('btn-box-model').classList.remove('active');
   document.getElementById('btn-grid').classList.remove('active');
   document.getElementById('btn-inspect').classList.remove('active');
   document.getElementById('btn-font').classList.remove('active');
@@ -32,25 +34,20 @@ export function clearAll() {
   evalInPage('__UITools.setRulers(true)');
   evalInPage('__UITools.setGrid(false)');
   evalInPage('__UITools.setInspectMode(false)');
+  evalInPage('__UITools.setBoxModelPicker(false)');
   evalInPage('__UITools.setFontInspector(false)');
   renderGuideList();
   renderBoxList();
   stopPolling();
 }
 
-export function showBoxModel() {
-  evalInPage(
-    '(function(){if(!$0)return null;var r=$0.getBoundingClientRect();var s=window.getComputedStyle($0);return JSON.stringify({x:r.left,y:r.top,w:r.width,h:r.height,pt:parseFloat(s.paddingTop),pr:parseFloat(s.paddingRight),pb:parseFloat(s.paddingBottom),pl:parseFloat(s.paddingLeft),bt:parseFloat(s.borderTopWidth),br:parseFloat(s.borderRightWidth),bb:parseFloat(s.borderBottomWidth),bl:parseFloat(s.borderLeftWidth),mt:parseFloat(s.marginTop),mr:parseFloat(s.marginRight),mb:parseFloat(s.marginBottom),ml:parseFloat(s.marginLeft)});})();',
-    function (json) {
-      if (!json || json === 'null') return;
-      evalInPage('__UITools.setBoxModel(' + json + ')');
-    }
-  );
-}
-
 export function toggleInspect(enable) {
   state.inspect = enable;
   evalInPage('__UITools.setInspectMode(' + enable + ')');
+}
+
+export function toggleBoxModelPicker(enable) {
+  evalInPage('__UITools.setBoxModelPicker(' + enable + ')');
 }
 
 // ─── Breakpoint presets ───────────────────────────────────────────────────

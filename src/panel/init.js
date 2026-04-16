@@ -4,7 +4,7 @@ import { addGuide } from './guides.js';
 import { addBox } from './boxes.js';
 import { renderGuideList, renderBoxList } from './render.js';
 import { updateCoordDisplay, ensurePolling } from './sync.js';
-import { clearAll, applyGrid, showBoxModel, toggleInspect, scanBreakpoints } from './features.js';
+import { clearAll, applyGrid, toggleInspect, toggleBoxModelPicker, scanBreakpoints } from './features.js';
 
 // ─── Toolbar buttons ───────────────────────────────────────────────────────
 
@@ -16,9 +16,19 @@ document.getElementById('btn-clear-all').addEventListener('click', clearAll);
 document.getElementById('btn-box-model').addEventListener('click', function () {
   state.boxModel = !state.boxModel;
   this.classList.toggle('active', state.boxModel);
+
   if (state.boxModel) {
-    showBoxModel();
+    // Deactivate inspect if active (mutual exclusivity)
+    if (state.inspect) {
+      state.inspect = false;
+      document.getElementById('btn-inspect').classList.remove('active');
+      toggleInspect(false);
+    }
+
+    toggleBoxModelPicker(true);
+    ensurePolling();
   } else {
+    toggleBoxModelPicker(false);
     evalInPage('__UITools.clearBoxModel()');
   }
 });
@@ -119,6 +129,15 @@ document.getElementById('btn-eyedropper').addEventListener('click', async functi
 document.getElementById('btn-inspect').addEventListener('click', function () {
   state.inspect = !state.inspect;
   this.classList.toggle('active', state.inspect);
+
+  // Deactivate box model if active (mutual exclusivity)
+  if (state.inspect && state.boxModel) {
+    state.boxModel = false;
+    document.getElementById('btn-box-model').classList.remove('active');
+    toggleBoxModelPicker(false);
+    evalInPage('__UITools.clearBoxModel()');
+  }
+
   toggleInspect(state.inspect);
   if (state.inspect) ensurePolling();
 });
@@ -129,12 +148,6 @@ document.getElementById('btn-font').addEventListener('click', function () {
   state.fontInspector = !state.fontInspector;
   this.classList.toggle('active', state.fontInspector);
   evalInPage('__UITools.setFontInspector(' + state.fontInspector + ')');
-});
-
-// ─── Element selection changes ────────────────────────────────────────────
-
-chrome.devtools.panels.elements.onSelectionChanged.addListener(function () {
-  if (state.boxModel) showBoxModel();
 });
 
 // ─── Startup ─────────────────────────────────────────────────────────────
