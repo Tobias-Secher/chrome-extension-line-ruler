@@ -77,7 +77,7 @@ There is no setup, no API key, no project config. Open DevTools, open the Ruler 
 - **Keyboard nudge** — click a guide row in the panel to select it, then reposition with arrow keys (1px) or Shift + arrow keys (10px)
 - **Color eyedropper** — samples any pixel on the page using the browser's native EyeDropper API and copies the hex value to the clipboard, with a brief inline color preview
 - **Font inspector** — a hover tooltip that follows the cursor and displays the font-family, size, weight, and line-height of any element on the page; toggled from the toolbar
-- **Spacing inspector** — select any two elements in the DevTools Elements panel and visualize the pixel gap between their bounding boxes as labeled measurement lines on the page; overlap is highlighted in red
+- **DOM Spacing Inspector** — an interactive cursor-driven inspect mode for measuring spacing between any DOM elements. Click "Inspect" in the toolbar to enter selection mode: hover highlights elements in green, click to select a blue reference element, then hover other elements to see live measurement lines with pixel labels. Supports external spacing (distance between elements using a Figma-style dominant-axis heuristic), internal spacing (all 4 inset distances when hovering a child inside the selected container), and overlap detection. Uses a transparent full-viewport interceptor with `elementFromPoint()` for precise element targeting. Highlights and measurements update live on scroll and resize. ESC exits the mode; clicking the selected element deselects it
 
 ### Phase 2 — Measurement & Precision
 
@@ -152,6 +152,7 @@ Secondary users include **designers who can inspect code** and want to do quick 
 | Ruler chrome (tick bars)    | In-DOM, `position: sticky`                 | Always visible, never hides page content           |
 | Guide lines                 | In-DOM, `position: fixed`                  | Viewport-relative, scroll-independent              |
 | Measurement boxes           | In-DOM, `position: fixed`                  | Viewport-relative overlays; pointer-events on drag/resize handles only |
+| DOM Spacing Inspector       | Transparent interceptor div + `elementFromPoint()` | Cursor-driven element selection; suppresses page interaction while active |
 | Page interactivity          | `pointer-events: none` on guides container | Page remains fully usable                          |
 | Control surface             | Chrome DevTools panel (`devtools_page`)    | Native DevTools integration, no popup              |
 | Guide injection             | `chrome.devtools.inspectedWindow.eval()`   | Works without `scripting` permission, bypasses CSP |
