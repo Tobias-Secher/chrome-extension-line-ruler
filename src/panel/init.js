@@ -3,8 +3,8 @@ import { injectRuntime, evalInPage } from './bridge.js';
 import { addGuide } from './guides.js';
 import { addBox } from './boxes.js';
 import { renderGuideList, renderBoxList } from './render.js';
-import { updateCoordDisplay } from './sync.js';
-import { clearAll, applyGrid, showBoxModel, showSpacing, scanBreakpoints } from './features.js';
+import { updateCoordDisplay, ensurePolling } from './sync.js';
+import { clearAll, applyGrid, showBoxModel, toggleInspect, scanBreakpoints } from './features.js';
 
 // ─── Toolbar buttons ───────────────────────────────────────────────────────
 
@@ -114,17 +114,13 @@ document.getElementById('btn-eyedropper').addEventListener('click', async functi
   } catch (e) { /* user cancelled */ }
 });
 
-// ─── Spacing inspector ────────────────────────────────────────────────────
+// ─── Inspect mode ─────────────────────────────────────────────────────────
 
-document.getElementById('btn-spacing').addEventListener('click', function () {
-  state.spacing = !state.spacing;
-  this.classList.toggle('active', state.spacing);
-  if (state.spacing) {
-    showSpacing();
-  } else {
-    document.getElementById('spacing-hint').classList.add('hidden');
-    evalInPage('__UITools.clearSpacing()');
-  }
+document.getElementById('btn-inspect').addEventListener('click', function () {
+  state.inspect = !state.inspect;
+  this.classList.toggle('active', state.inspect);
+  toggleInspect(state.inspect);
+  if (state.inspect) ensurePolling();
 });
 
 // ─── Font inspector ───────────────────────────────────────────────────────
@@ -139,7 +135,6 @@ document.getElementById('btn-font').addEventListener('click', function () {
 
 chrome.devtools.panels.elements.onSelectionChanged.addListener(function () {
   if (state.boxModel) showBoxModel();
-  if (state.spacing) showSpacing();
 });
 
 // ─── Startup ─────────────────────────────────────────────────────────────

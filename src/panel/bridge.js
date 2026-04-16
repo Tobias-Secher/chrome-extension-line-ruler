@@ -7,6 +7,7 @@ const INJECTED_MODULES = [
   'src/injected/boxes.js',
   'src/injected/crosshair.js',
   'src/injected/overlays.js',
+  'src/injected/inspect.js',
   'src/injected/api.js',
 ];
 
