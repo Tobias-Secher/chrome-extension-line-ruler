@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "UI Tools",
-  "version": "0.7.2",
-  "description": "A collection of frontend precision tools inside Chrome DevTools.",
+  "version": "0.8.0",
+  "description": "A collection of frontend precision tools for browser DevTools.",
   "icons": {
     "16": "icons/icon16.png",
     "48": "icons/icon48.png",
