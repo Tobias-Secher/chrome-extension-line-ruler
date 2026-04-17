@@ -2,6 +2,7 @@ import { state, COLORS } from './state.js';
 import { evalInPage } from './bridge.js';
 import { renderGuideList } from './render.js';
 
+
 export function ensurePolling() {
   if (state.polling) return;
   state.polling = setInterval(function () {
