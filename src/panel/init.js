@@ -161,6 +161,10 @@ document.getElementById('btn-font').addEventListener('click', function () {
 renderGuideList();
 renderBoxList();
 
+// ─── Version display ─────────────────────────────────────────────────────
+
+document.getElementById('version-bar').textContent = 'v' + chrome.runtime.getManifest().version;
+
 // Inject runtime immediately so rulers appear on panel open
 injectRuntime(function () {
   document.getElementById('chk-rulers').checked = true;

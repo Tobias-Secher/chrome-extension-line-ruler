@@ -32,3 +32,16 @@ body {
   user-select: none;
   overflow-x: hidden;
 }
+
+#version-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 4px 8px;
+  text-align: right;
+  font-size: 10px;
+  color: var(--text-dim);
+  background: var(--bg-base);
+  border-top: 1px solid var(--border-subtle);
+}
