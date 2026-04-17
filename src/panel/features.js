@@ -24,7 +24,7 @@ export function clearAll() {
   state.inspect = false;
   state.fontInspector = false;
   state.selectedId = null;
-  document.getElementById('chk-rulers').checked = true;
+  document.getElementById('btn-rulers').classList.add('active');
   document.getElementById('btn-box-model').classList.remove('active');
   document.getElementById('btn-grid').classList.remove('active');
   document.getElementById('btn-inspect').classList.remove('active');

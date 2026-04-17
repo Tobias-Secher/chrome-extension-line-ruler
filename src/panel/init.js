@@ -33,8 +33,9 @@ document.getElementById('btn-box-model').addEventListener('click', function () {
   }
 });
 
-document.getElementById('chk-rulers').addEventListener('change', function () {
-  state.rulers = this.checked;
+document.getElementById('btn-rulers').addEventListener('click', function () {
+  state.rulers = !state.rulers;
+  this.classList.toggle('active', state.rulers);
   evalInPage('__UITools.setRulers(' + state.rulers + ')');
 });
 
@@ -167,6 +168,6 @@ document.getElementById('version-bar').textContent = 'v' + chrome.runtime.getMan
 
 // Inject runtime immediately so rulers appear on panel open
 injectRuntime(function () {
-  document.getElementById('chk-rulers').checked = true;
+  document.getElementById('btn-rulers').classList.add('active');
   scanBreakpoints();
 });
