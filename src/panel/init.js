@@ -98,29 +98,35 @@ document.addEventListener('keydown', function (e) {
 
 // ─── Color eyedropper ─────────────────────────────────────────────────────
 
+function showColorToast(hex) {
+  navigator.clipboard.writeText(hex);
+  var toast = document.getElementById('color-toast');
+  while (toast.firstChild) toast.removeChild(toast.firstChild);
+  var swatch = document.createElement('span');
+  swatch.className = 'color-toast-swatch';
+  swatch.style.background = hex;
+  var label = document.createElement('span');
+  label.className = 'color-toast-hex';
+  label.textContent = hex;
+  var hint = document.createElement('span');
+  hint.className = 'color-toast-copy';
+  hint.textContent = 'copied';
+  toast.appendChild(swatch);
+  toast.appendChild(label);
+  toast.appendChild(hint);
+  toast.classList.remove('hidden');
+  clearTimeout(toast._timer);
+  toast._timer = setTimeout(function () { toast.classList.add('hidden'); }, 3000);
+}
+
+if (!('EyeDropper' in window)) {
+  document.getElementById('btn-eyedropper').style.display = 'none';
+}
+
 document.getElementById('btn-eyedropper').addEventListener('click', async function () {
-  if (!('EyeDropper' in window)) return;
   try {
     var result = await new EyeDropper().open();
-    var hex = result.sRGBHex;
-    navigator.clipboard.writeText(hex);
-    var toast = document.getElementById('color-toast');
-    toast.innerHTML = '';
-    var swatch = document.createElement('span');
-    swatch.className = 'color-toast-swatch';
-    swatch.style.background = hex;
-    var label = document.createElement('span');
-    label.className = 'color-toast-hex';
-    label.textContent = hex;
-    var hint = document.createElement('span');
-    hint.className = 'color-toast-copy';
-    hint.textContent = 'copied';
-    toast.appendChild(swatch);
-    toast.appendChild(label);
-    toast.appendChild(hint);
-    toast.classList.remove('hidden');
-    clearTimeout(toast._timer);
-    toast._timer = setTimeout(function () { toast.classList.add('hidden'); }, 3000);
+    showColorToast(result.sRGBHex);
   } catch (e) { /* user cancelled */ }
 });
 
