@@ -1,11 +1,9 @@
 /* ─── Toolbar ─────────────────────────────────────────────────────────────── */
 
 #toolbar {
-  display: grid;
-  grid-template-columns: 1fr max-content;
-  align-items: start;
-  gap: 4px;
-  padding: 5px 8px 6px;
+  display: flex;
+  align-items: flex-start;
+  padding: 5px 8px 4px;
   border-bottom: 1px solid var(--border);
   background: var(--bg-panel);
 }
@@ -14,12 +12,35 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 3px;
+  gap: 4px 0;
 }
 
 .tb-group {
   display: flex;
+  flex-direction: column;
+  align-items: center;
   gap: 2px;
+}
+
+.tb-group-buttons {
+  display: flex;
+  gap: 2px;
+}
+
+.tb-group-label {
+  font-size: 8px;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  letter-spacing: 0.5px;
+  line-height: 1;
+}
+
+.tb-divider {
+  width: 1px;
+  height: 28px;
+  background: var(--border);
+  margin: 0 8px;
+  flex-shrink: 0;
 }
 
 button {
@@ -35,6 +56,15 @@ button {
   transition: background 80ms, border-color 80ms, color 80ms;
 }
 
+#tb-buttons button {
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
 button:hover {
   background: var(--bg-hover);
   border-color: #3e3e48;
@@ -48,14 +78,14 @@ button:active {
 #btn-inspect.active,
 #btn-crosshair.active,
 #btn-grid.active,
-#btn-font.active {
+#btn-font.active,
+#btn-rulers.active {
   background: var(--accent-bg);
   border-color: var(--accent-border);
   color: var(--accent-text);
 }
 
 #btn-clear-all {
-  width: max-content;
   color: var(--text-dim);
   border-color: transparent;
   background: transparent;
@@ -65,74 +95,6 @@ button:active {
   color: var(--danger);
   background: var(--danger-bg);
   border-color: var(--danger-border);
-}
-
-/* ─── Toggle switch ──────────────────────────────────────────────────────── */
-
-.toggle-switch {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 3px 7px;
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  background: var(--bg-item);
-  font-family: monospace;
-  font-size: 11px;
-  color: var(--text);
-  cursor: pointer;
-  transition: background 80ms, border-color 80ms;
-  white-space: nowrap;
-}
-
-.toggle-switch:hover {
-  background: var(--bg-hover);
-  border-color: #3e3e48;
-}
-
-.toggle-label {
-  color: var(--text-dim);
-  transition: color 150ms;
-}
-
-.toggle-switch input {
-  display: none;
-}
-
-.toggle-track {
-  width: 24px;
-  height: 12px;
-  border-radius: 6px;
-  background: var(--border);
-  position: relative;
-  flex-shrink: 0;
-  transition: background 150ms, border-color 150ms;
-  border: 1px solid transparent;
-}
-
-.toggle-thumb {
-  position: absolute;
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--text-dim);
-  top: 1px;
-  left: 1px;
-  transition: left 150ms, background 150ms;
-}
-
-#chk-rulers:checked + .toggle-track {
-  background: var(--accent-bg);
-  border-color: var(--accent-border);
-}
-
-#chk-rulers:checked + .toggle-track .toggle-thumb {
-  left: 13px;
-  background: var(--accent-text);
-}
-
-.toggle-switch:has(#chk-rulers:checked) .toggle-label {
-  color: var(--text);
 }
 
 /* ─── Grid settings panel ────────────────────────────────────────────────── */

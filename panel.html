@@ -12,23 +12,61 @@
   <div id="toolbar">
     <div id="tb-buttons">
       <div class="tb-group">
-        <button id="btn-add-h" title="Add Horizontal Guide">+ H</button>
-        <button id="btn-add-v" title="Add Vertical Guide">+ V</button>
-        <button id="btn-add-box" title="Add Measurement Box">+ Box</button>
+        <div class="tb-group-buttons">
+          <button id="btn-add-h" title="Add Horizontal Guide">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><line x1="1" y1="7" x2="13" y2="7"/><line x1="7" y1="4" x2="7" y2="10" stroke-dasharray="2 2"/></svg>
+          </button>
+          <button id="btn-add-v" title="Add Vertical Guide">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><line x1="7" y1="1" x2="7" y2="13"/><line x1="4" y1="7" x2="10" y2="7" stroke-dasharray="2 2"/></svg>
+          </button>
+          <button id="btn-add-box" title="Add Measurement Box">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="10" height="10" rx="1" stroke-dasharray="3 2"/></svg>
+          </button>
+        </div>
+        <span class="tb-group-label">Add</span>
       </div>
-      <button id="btn-box-model">Box Model</button>
-      <button id="btn-inspect">Inspect</button>
-      <button id="btn-eyedropper" title="Pick color from page">Eyedropper</button>
-      <label class="toggle-switch" title="Show/hide rulers">
-        <input type="checkbox" id="chk-rulers">
-        <span class="toggle-track"><span class="toggle-thumb"></span></span>
-        <span class="toggle-label">Rulers</span>
-      </label>
-      <button id="btn-crosshair">Crosshair</button>
-      <button id="btn-grid">Grid</button>
-      <button id="btn-font">Font</button>
+      <span class="tb-divider"></span>
+      <div class="tb-group">
+        <div class="tb-group-buttons">
+          <button id="btn-box-model" title="Box Model">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="1" width="12" height="12" rx="1"/><rect x="4" y="4" width="6" height="6" rx="0.5"/></svg>
+          </button>
+          <button id="btn-inspect" title="Inspect Spacing">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><line x1="7" y1="1" x2="7" y2="13"/><line x1="1" y1="7" x2="13" y2="7"/><polyline points="5,2 7,1 9,2"/><polyline points="5,12 7,13 9,12"/><polyline points="2,5 1,7 2,9"/><polyline points="12,5 13,7 12,9"/></svg>
+          </button>
+          <button id="btn-font" title="Font Inspector">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><line x1="4" y1="2" x2="10" y2="2"/><line x1="7" y1="2" x2="7" y2="12"/><line x1="5" y1="12" x2="9" y2="12"/></svg>
+          </button>
+          <button id="btn-eyedropper" title="Eyedropper">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.5 1.5l2 2-1.5 1.5-2-2z"/><path d="M9 5L4.5 9.5 3 11l-1 1 1.5-0.5L5 9.5 9.5 5z"/></svg>
+          </button>
+        </div>
+        <span class="tb-group-label">Inspect</span>
+      </div>
+      <span class="tb-divider"></span>
+      <div class="tb-group">
+        <div class="tb-group-buttons">
+          <button id="btn-rulers" title="Toggle Rulers">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="1,1 1,13 13,13"/><line x1="1" y1="4" x2="3" y2="4" stroke-width="1"/><line x1="1" y1="7" x2="4" y2="7" stroke-width="1"/><line x1="1" y1="10" x2="3" y2="10" stroke-width="1"/><line x1="4" y1="13" x2="4" y2="11" stroke-width="1"/><line x1="7" y1="13" x2="7" y2="10" stroke-width="1"/><line x1="10" y1="13" x2="10" y2="11" stroke-width="1"/></svg>
+          </button>
+          <button id="btn-crosshair" title="Toggle Crosshair">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="7" cy="7" r="3"/><line x1="7" y1="1" x2="7" y2="4"/><line x1="7" y1="10" x2="7" y2="13"/><line x1="1" y1="7" x2="4" y2="7"/><line x1="10" y1="7" x2="13" y2="7"/></svg>
+          </button>
+          <button id="btn-grid" title="Toggle Grid">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="1.5" y="1.5" width="11" height="11" rx="1" stroke-width="1.5"/><line x1="5" y1="1.5" x2="5" y2="12.5" stroke-width="1"/><line x1="9" y1="1.5" x2="9" y2="12.5" stroke-width="1"/><line x1="1.5" y1="5" x2="12.5" y2="5" stroke-width="1"/><line x1="1.5" y1="9" x2="12.5" y2="9" stroke-width="1"/></svg>
+          </button>
+        </div>
+        <span class="tb-group-label">Overlays</span>
+      </div>
+      <span class="tb-divider"></span>
+      <div class="tb-group">
+        <div class="tb-group-buttons">
+          <button id="btn-clear-all" title="Clear All">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><line x1="3" y1="3" x2="11" y2="11"/><line x1="11" y1="3" x2="3" y2="11"/></svg>
+          </button>
+        </div>
+      </div>
     </div>
-    <button id="btn-clear-all">Clear</button>
   </div>
   <div id="color-toast" class="hidden"></div>
   <div id="grid-settings" class="settings-panel hidden">

@@ -2,7 +2,7 @@
 
 > A collection of precision measurement and alignment tools for frontend developers, living inside browser DevTools.
 
-**Version 0.8.4** | Chrome & Firefox | Manifest V3 | Zero dependencies
+**Version 0.9.0** | Chrome & Firefox | Manifest V3 | Zero dependencies
 
 ---
 
@@ -83,18 +83,18 @@ Auto-scans page stylesheets for `min-width`/`max-width` media query values and d
 
 | Action | How |
 |--------|-----|
-| Add horizontal guide | Click **+ H** |
-| Add vertical guide | Click **+ V** |
-| Add measurement box | Click **+ Box** |
+| Add horizontal guide | Click the horizontal line icon in **Add** group |
+| Add vertical guide | Click the vertical line icon in **Add** group |
+| Add measurement box | Click the box icon in **Add** group |
 | Create guide from ruler | Drag from ruler bar edge |
 | Reposition guide | Drag its handle on the page |
 | Nudge selected guide | Arrow keys (1px) or Shift+Arrow (10px) |
-| Inspect spacing | Click **Inspect**, select element, hover to measure |
-| Pick a color | Click **Eyedropper**, click any pixel |
-| Inspect fonts | Toggle **Font**, hover elements |
-| View box model | Toggle **Box Model**, click element |
-| Toggle crosshair | Click **Crosshair** |
-| Toggle column grid | Click **Grid**, adjust settings inline |
+| Inspect spacing | Click the spacing icon in **Inspect** group, select element, hover to measure |
+| Pick a color | Click the eyedropper icon in **Inspect** group, click any pixel |
+| Inspect fonts | Toggle the **T** icon in **Inspect** group, hover elements |
+| View box model | Toggle the box model icon in **Inspect** group, click element |
+| Toggle crosshair | Click the crosshair icon in **Overlays** group |
+| Toggle column grid | Click the grid icon in **Overlays** group, adjust settings inline |
 | Add breakpoint guide | Click a breakpoint preset button |
 | Exit inspect/box model mode | Press **ESC** |
 
