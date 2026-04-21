@@ -149,6 +149,102 @@ function _bmPickerOnClick(e) {
     mb: parseFloat(s.marginBottom), ml: parseFloat(s.marginLeft),
   };
   setBoxModel(d);
+
+  window.__UITools.pendingUpdate = {
+    type: 'elementPicked',
+    ident: _buildIdent(el),
+    groups: _collectStyleGroups(s),
+  };
+}
+
+function _buildIdent(el) {
+  var tag = el.tagName ? el.tagName.toLowerCase() : '';
+  var id = el.id ? '#' + el.id : '';
+  var classes = '';
+  if (el.classList && el.classList.length) {
+    for (var i = 0; i < el.classList.length; i++) classes += '.' + el.classList[i];
+  }
+  return tag + classes + id;
+}
+
+function _collectStyleGroups(s) {
+  var groups = [
+    {
+      name: 'Typography',
+      rows: [
+        ['font-family', s.fontFamily],
+        ['font-size', s.fontSize],
+        ['font-weight', s.fontWeight],
+        ['line-height', s.lineHeight],
+        ['letter-spacing', s.letterSpacing],
+        ['text-align', s.textAlign],
+        ['text-transform', s.textTransform],
+        ['color', s.color],
+      ],
+    },
+    {
+      name: 'Box',
+      rows: [
+        ['width', s.width],
+        ['height', s.height],
+        ['padding', s.padding || [s.paddingTop, s.paddingRight, s.paddingBottom, s.paddingLeft].join(' ')],
+        ['margin', s.margin || [s.marginTop, s.marginRight, s.marginBottom, s.marginLeft].join(' ')],
+        ['border', s.border || (s.borderTopWidth + ' ' + s.borderTopStyle + ' ' + s.borderTopColor)],
+        ['box-sizing', s.boxSizing],
+      ],
+    },
+  ];
+
+  var layoutRows = [
+    ['display', s.display],
+    ['position', s.position],
+    ['z-index', s.zIndex],
+    ['overflow', s.overflow],
+  ];
+  if (s.position && s.position !== 'static') {
+    layoutRows.push(['top', s.top]);
+    layoutRows.push(['right', s.right]);
+    layoutRows.push(['bottom', s.bottom]);
+    layoutRows.push(['left', s.left]);
+  }
+  groups.push({ name: 'Layout', rows: layoutRows });
+
+  groups.push({
+    name: 'Appearance',
+    rows: [
+      ['background-color', s.backgroundColor],
+      ['background-image', s.backgroundImage],
+      ['opacity', s.opacity],
+      ['border-radius', s.borderRadius],
+      ['box-shadow', s.boxShadow],
+      ['transform', s.transform],
+      ['filter', s.filter],
+      ['cursor', s.cursor],
+    ],
+  });
+
+  if (s.display === 'flex' || s.display === 'inline-flex') {
+    groups.push({
+      name: 'Flex container',
+      rows: [
+        ['flex-direction', s.flexDirection],
+        ['justify-content', s.justifyContent],
+        ['align-items', s.alignItems],
+        ['gap', s.gap],
+      ],
+    });
+  } else if (s.display === 'grid' || s.display === 'inline-grid') {
+    groups.push({
+      name: 'Grid container',
+      rows: [
+        ['grid-template-columns', s.gridTemplateColumns],
+        ['grid-template-rows', s.gridTemplateRows],
+        ['gap', s.gap],
+      ],
+    });
+  }
+
+  return groups;
 }
 
 function _bmPickerOnKeyDown(e) {

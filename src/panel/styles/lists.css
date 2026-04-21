@@ -172,3 +172,108 @@
   text-align: center;
   letter-spacing: 0.02em;
 }
+
+/* ─── Selected element section ────────────────────────────────────────────── */
+
+.list-section.hidden {
+  display: none;
+}
+
+#selected-section .section-header {
+  gap: 6px;
+}
+
+.selected-ident {
+  flex: 1;
+  min-width: 0;
+  font-size: 10px;
+  color: var(--text-accent);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#selected-body {
+  overflow-y: auto;
+  max-height: 50vh;
+}
+
+#selected-body::-webkit-scrollbar {
+  width: 4px;
+}
+
+#selected-body::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+#selected-body::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 2px;
+}
+
+.prop-group-header {
+  padding: 5px 10px 3px;
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  background: var(--bg-panel);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.prop-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 3px 10px;
+  border-bottom: 1px solid var(--border-subtle);
+  cursor: pointer;
+  transition: background 80ms;
+}
+
+.prop-row:hover {
+  background: var(--bg-hover);
+}
+
+.prop-row:active {
+  background: var(--bg-active);
+}
+
+.prop-key {
+  color: var(--text-dim);
+  flex-shrink: 0;
+  width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.prop-value {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex: 1;
+  min-width: 0;
+  color: var(--text);
+}
+
+.prop-value-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.prop-swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  border: 1px solid var(--border);
+  flex-shrink: 0;
+  background-image:
+    linear-gradient(45deg, #333 25%, transparent 25%),
+    linear-gradient(-45deg, #333 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #333 75%),
+    linear-gradient(-45deg, transparent 75%, #333 75%);
+  background-size: 6px 6px;
+  background-position: 0 0, 0 3px, 3px -3px, -3px 0;
+}

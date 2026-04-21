@@ -2,7 +2,7 @@
 
 > A collection of precision measurement and alignment tools for frontend developers, living inside browser DevTools.
 
-**Version 0.9.0** | Chrome & Firefox | Manifest V3 | Zero dependencies
+**Version 0.10.1** | Chrome & Firefox | Manifest V3 | Zero dependencies
 
 ---
 
@@ -33,7 +33,7 @@ Pick any color from the page using the browser's native EyeDropper API. The hex 
 Hover tooltip that follows the cursor displaying font family, size, weight, and line height of any element. Toggle from the toolbar.
 
 ### Box Model Picker
-Click any element to visualize its full CSS box model with colored semi-transparent layers: orange (margin), yellow (border), green (padding), blue (content). Updates live as you hover.
+Click any element to visualize its full CSS box model with colored semi-transparent layers: orange (margin), yellow (border), green (padding), blue (content). Updates live as you hover. The selected element's computed styles (typography, box, layout, appearance, and flex/grid container props when applicable) appear in the panel, grouped by category, with color swatches next to color values. Click any row to copy its value.
 
 ### Crosshair
 A viewport-wide crosshair that follows the cursor for precise alignment work. Toggle from the toolbar.

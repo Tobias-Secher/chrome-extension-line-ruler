@@ -2,7 +2,7 @@ import { state } from './state.js';
 import { injectRuntime, evalInPage } from './bridge.js';
 import { addGuide } from './guides.js';
 import { addBox } from './boxes.js';
-import { renderGuideList, renderBoxList } from './render.js';
+import { renderGuideList, renderBoxList, renderSelected } from './render.js';
 import { updateCoordDisplay, ensurePolling } from './sync.js';
 import { clearAll, applyGrid, toggleInspect, toggleBoxModelPicker, scanBreakpoints } from './features.js';
 
@@ -157,10 +157,27 @@ document.getElementById('btn-font').addEventListener('click', function () {
   evalInPage('__UITools.setFontInspector(' + state.fontInspector + ')');
 });
 
+// ─── Selected element clear ──────────────────────────────────────────────
+
+document.getElementById('btn-selected-clear').addEventListener('click', function () {
+  state.selectedElement = null;
+  renderSelected();
+});
+
+// ─── Page navigation clears selection ────────────────────────────────────
+
+if (chrome.devtools && chrome.devtools.network && chrome.devtools.network.onNavigated) {
+  chrome.devtools.network.onNavigated.addListener(function () {
+    state.selectedElement = null;
+    renderSelected();
+  });
+}
+
 // ─── Startup ─────────────────────────────────────────────────────────────
 
 renderGuideList();
 renderBoxList();
+renderSelected();
 
 // ─── Version display ─────────────────────────────────────────────────────
 

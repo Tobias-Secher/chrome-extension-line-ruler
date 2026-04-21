@@ -1,6 +1,6 @@
 import { state } from './state.js';
 import { evalInPage } from './bridge.js';
-import { renderGuideList, renderBoxList } from './render.js';
+import { renderGuideList, renderBoxList, renderSelected } from './render.js';
 import { stopPolling } from './sync.js';
 import { addGuideAt } from './guides.js';
 
@@ -24,6 +24,7 @@ export function clearAll() {
   state.inspect = false;
   state.fontInspector = false;
   state.selectedId = null;
+  state.selectedElement = null;
   document.getElementById('btn-rulers').classList.add('active');
   document.getElementById('btn-box-model').classList.remove('active');
   document.getElementById('btn-grid').classList.remove('active');
@@ -38,6 +39,7 @@ export function clearAll() {
   evalInPage('__UITools.setFontInspector(false)');
   renderGuideList();
   renderBoxList();
+  renderSelected();
   stopPolling();
 }
 
