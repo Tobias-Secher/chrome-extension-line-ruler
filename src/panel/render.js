@@ -62,7 +62,8 @@ export function renderSelected() {
       var row = document.createElement('div');
       row.className = 'prop-row';
       row.title = 'Click to copy';
-      row.addEventListener('click', function () { showCopyToast(value); });
+      var decl = key + ': ' + value;
+      row.addEventListener('click', function () { showCopyToast(decl); });
 
       var keyEl = document.createElement('span');
       keyEl.className = 'prop-key';

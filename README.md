@@ -2,7 +2,7 @@
 
 > A collection of precision measurement and alignment tools for frontend developers, living inside browser DevTools.
 
-**Version 0.10.0** | Chrome & Firefox | Manifest V3 | Zero dependencies
+**Version 0.10.1** | Chrome & Firefox | Manifest V3 | Zero dependencies
 
 ---
 
