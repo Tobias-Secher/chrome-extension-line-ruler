@@ -2,6 +2,94 @@ import { state } from './state.js';
 import { setGuideColor, removeGuide } from './guides.js';
 import { setBoxColor, removeBox } from './boxes.js';
 
+var COLOR_RE = /#[0-9a-f]{3,8}\b|rgba?\([^)]+\)|hsla?\([^)]+\)/i;
+
+function showCopyToast(value) {
+  navigator.clipboard.writeText(value);
+  var toast = document.getElementById('color-toast');
+  while (toast.firstChild) toast.removeChild(toast.firstChild);
+
+  var colorMatch = value.match(COLOR_RE);
+  if (colorMatch) {
+    var swatch = document.createElement('span');
+    swatch.className = 'color-toast-swatch';
+    swatch.style.background = colorMatch[0];
+    toast.appendChild(swatch);
+  }
+  var label = document.createElement('span');
+  label.className = 'color-toast-hex';
+  label.textContent = value;
+  var hint = document.createElement('span');
+  hint.className = 'color-toast-copy';
+  hint.textContent = 'copied';
+  toast.appendChild(label);
+  toast.appendChild(hint);
+  toast.classList.remove('hidden');
+  clearTimeout(toast._timer);
+  toast._timer = setTimeout(function () { toast.classList.add('hidden'); }, 3000);
+}
+
+export function renderSelected() {
+  var section = document.getElementById('selected-section');
+  var identEl = document.getElementById('selected-ident');
+  var body = document.getElementById('selected-body');
+
+  if (!state.selectedElement) {
+    section.classList.add('hidden');
+    identEl.textContent = '';
+    identEl.title = '';
+    body.innerHTML = '';
+    return;
+  }
+
+  section.classList.remove('hidden');
+  var sel = state.selectedElement;
+  identEl.textContent = sel.ident;
+  identEl.title = sel.ident;
+
+  body.innerHTML = '';
+  sel.groups.forEach(function (group) {
+    var header = document.createElement('div');
+    header.className = 'prop-group-header';
+    header.textContent = group.name;
+    body.appendChild(header);
+
+    group.rows.forEach(function (pair) {
+      var key = pair[0];
+      var value = pair[1];
+      if (value === '' || value == null) return;
+
+      var row = document.createElement('div');
+      row.className = 'prop-row';
+      row.title = 'Click to copy';
+      row.addEventListener('click', function () { showCopyToast(value); });
+
+      var keyEl = document.createElement('span');
+      keyEl.className = 'prop-key';
+      keyEl.textContent = key;
+
+      var valWrap = document.createElement('span');
+      valWrap.className = 'prop-value';
+
+      var colorMatch = value.match(COLOR_RE);
+      if (colorMatch) {
+        var swatch = document.createElement('span');
+        swatch.className = 'prop-swatch';
+        swatch.style.background = colorMatch[0];
+        valWrap.appendChild(swatch);
+      }
+      var valText = document.createElement('span');
+      valText.className = 'prop-value-text';
+      valText.textContent = value;
+      valWrap.appendChild(valText);
+
+      row.appendChild(keyEl);
+      row.appendChild(valWrap);
+      body.appendChild(row);
+    });
+  });
+}
+
 function updateSectionHeaders() {
   var gc = document.getElementById('guides-count');
   var bc = document.getElementById('boxes-count');

@@ -1,6 +1,6 @@
 import { state, COLORS } from './state.js';
 import { evalInPage } from './bridge.js';
-import { renderGuideList } from './render.js';
+import { renderGuideList, renderSelected } from './render.js';
 
 
 export function ensurePolling() {
@@ -36,6 +36,9 @@ export function ensurePolling() {
           state.boxModel = false;
           document.getElementById('btn-box-model').classList.remove('active');
           evalInPage('__UITools.clearBoxModel()');
+        } else if (update.type === 'elementPicked') {
+          state.selectedElement = { ident: update.ident, groups: update.groups };
+          renderSelected();
         } else {
           var guide = state.guides.find(function (g) { return g.id === update.id; });
           if (guide) {

@@ -17,4 +17,5 @@ export const state = {
   fontInspector: false,
   selectedId: null,
   lastAddedId: null,
+  selectedElement: null,
 };
