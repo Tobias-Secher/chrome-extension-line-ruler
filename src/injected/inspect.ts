@@ -1,23 +1,25 @@
-// ─── DOM Spacing Inspector ────────────────────────────────────────────────
+import { host } from './state';
 
-var _inspectActive = false;
-var _inspectInterceptor = null;
-var _inspectSelected = null;
-var _inspectHovered = null;
-var _inspectOverlayEls = [];
-var _inspectHandlers = {};
+let _inspectActive = false;
+let _inspectInterceptor: HTMLElement | null = null;
+let _inspectSelected: Element | null = null;
+let _inspectHovered: Element | null = null;
+let _inspectOverlayEls: HTMLElement[] = [];
+let _inspectHandlers: {
+  mousemove?: (e: MouseEvent) => void;
+  click?: (e: MouseEvent) => void;
+  keydown?: (e: KeyboardEvent) => void;
+  scroll?: () => void;
+  resize?: () => void;
+} = {};
 
-// ── Colors ───────────────────────────────────────────────────────────────
+const INSPECT_BLUE_OUTLINE = 'rgba(59,130,246,0.9)';
+const INSPECT_BLUE_FILL = 'rgba(59,130,246,0.08)';
+const INSPECT_GREEN_OUTLINE = 'rgba(34,197,94,0.9)';
+const INSPECT_GREEN_FILL = 'rgba(34,197,94,0.08)';
+const INSPECT_LINE_COLOR = 'rgba(255,100,100,0.9)';
 
-var INSPECT_BLUE_OUTLINE = 'rgba(59,130,246,0.9)';
-var INSPECT_BLUE_FILL = 'rgba(59,130,246,0.08)';
-var INSPECT_GREEN_OUTLINE = 'rgba(34,197,94,0.9)';
-var INSPECT_GREEN_FILL = 'rgba(34,197,94,0.08)';
-var INSPECT_LINE_COLOR = 'rgba(255,100,100,0.9)';
-
-// ── Main toggle ──────────────────────────────────────────────────────────
-
-function setInspectMode(enable) {
+export function setInspectMode(enable: boolean): void {
   if (enable && _inspectActive) return;
   if (!enable && !_inspectActive) return;
 
@@ -54,35 +56,33 @@ function setInspectMode(enable) {
     _inspectActive = false;
 
     if (_inspectInterceptor) {
-      _inspectInterceptor.removeEventListener('mousemove', _inspectHandlers.mousemove);
-      _inspectInterceptor.removeEventListener('click', _inspectHandlers.click);
-      _inspectInterceptor.parentNode && _inspectInterceptor.parentNode.removeChild(_inspectInterceptor);
+      if (_inspectHandlers.mousemove) _inspectInterceptor.removeEventListener('mousemove', _inspectHandlers.mousemove);
+      if (_inspectHandlers.click) _inspectInterceptor.removeEventListener('click', _inspectHandlers.click);
+      _inspectInterceptor.parentNode?.removeChild(_inspectInterceptor);
       _inspectInterceptor = null;
     }
-    document.removeEventListener('keydown', _inspectHandlers.keydown, true);
-    window.removeEventListener('scroll', _inspectHandlers.scroll, true);
-    window.removeEventListener('resize', _inspectHandlers.resize);
+    if (_inspectHandlers.keydown) document.removeEventListener('keydown', _inspectHandlers.keydown, true);
+    if (_inspectHandlers.scroll) window.removeEventListener('scroll', _inspectHandlers.scroll, true);
+    if (_inspectHandlers.resize) window.removeEventListener('resize', _inspectHandlers.resize);
     _inspectHandlers = {};
 
     _inspectClearAll();
   }
 }
 
-// ── Event handlers ───────────────────────────────────────────────────────
-
-function _inspectElementFromPoint(x, y) {
+function _inspectElementFromPoint(x: number, y: number): Element | null {
+  if (!_inspectInterceptor) return null;
   _inspectInterceptor.style.pointerEvents = 'none';
-  var el = document.elementFromPoint(x, y);
+  const el = document.elementFromPoint(x, y);
   _inspectInterceptor.style.pointerEvents = 'all';
   if (el && host.contains(el)) return null;
   return el;
 }
 
-function _inspectOnMouseMove(e) {
-  var el = _inspectElementFromPoint(e.clientX, e.clientY);
+function _inspectOnMouseMove(e: MouseEvent): void {
+  const el = _inspectElementFromPoint(e.clientX, e.clientY);
 
   if (_inspectSelected) {
-    // Check if selected element still exists
     if (!document.contains(_inspectSelected)) {
       _inspectSelected = null;
       _inspectHovered = null;
@@ -94,14 +94,12 @@ function _inspectOnMouseMove(e) {
       return;
     }
 
-    // Check if selected is in viewport
-    var selRect = _inspectSelected.getBoundingClientRect();
+    const selRect = _inspectSelected.getBoundingClientRect();
     if (!_inspectIsInViewport(selRect)) {
       _inspectClearOverlays();
       return;
     }
 
-    // Skip hover on selected element itself
     if (el === _inspectSelected) {
       _inspectHovered = null;
       _inspectClearOverlays();
@@ -119,7 +117,6 @@ function _inspectOnMouseMove(e) {
     _inspectHovered = el;
     _inspectRender();
   } else {
-    // Selection mode — just highlight hovered
     if (!el) {
       _inspectHovered = null;
       _inspectClearOverlays();
@@ -130,20 +127,18 @@ function _inspectOnMouseMove(e) {
   }
 }
 
-function _inspectOnClick(e) {
+function _inspectOnClick(e: MouseEvent): void {
   e.preventDefault();
   e.stopPropagation();
 
-  var el = _inspectElementFromPoint(e.clientX, e.clientY);
+  const el = _inspectElementFromPoint(e.clientX, e.clientY);
   if (!el) return;
 
   if (el === _inspectSelected) {
-    // Deselect — return to selection mode
     _inspectSelected = null;
     _inspectHovered = null;
     _inspectClearOverlays();
   } else {
-    // Select new reference
     _inspectSelected = el;
     _inspectHovered = null;
     _inspectClearOverlays();
@@ -151,7 +146,7 @@ function _inspectOnClick(e) {
   }
 }
 
-function _inspectOnKeyDown(e) {
+function _inspectOnKeyDown(e: KeyboardEvent): void {
   if (e.key === 'Escape' && _inspectActive) {
     e.preventDefault();
     e.stopPropagation();
@@ -160,7 +155,7 @@ function _inspectOnKeyDown(e) {
   }
 }
 
-function _inspectOnScroll() {
+function _inspectOnScroll(): void {
   if (!_inspectSelected) return;
   if (!document.contains(_inspectSelected)) {
     _inspectSelected = null;
@@ -168,7 +163,7 @@ function _inspectOnScroll() {
     _inspectClearOverlays();
     return;
   }
-  var selRect = _inspectSelected.getBoundingClientRect();
+  const selRect = _inspectSelected.getBoundingClientRect();
   if (!_inspectIsInViewport(selRect)) {
     _inspectClearOverlays();
     return;
@@ -181,49 +176,46 @@ function _inspectOnScroll() {
   }
 }
 
-function _inspectOnResize() {
+function _inspectOnResize(): void {
   _inspectOnScroll();
 }
 
-// ── Rendering ────────────────────────────────────────────────────────────
-
-function _inspectClearOverlays() {
-  for (var i = 0; i < _inspectOverlayEls.length; i++) {
-    var el = _inspectOverlayEls[i];
-    el.parentNode && el.parentNode.removeChild(el);
+function _inspectClearOverlays(): void {
+  for (const el of _inspectOverlayEls) {
+    el.parentNode?.removeChild(el);
   }
   _inspectOverlayEls = [];
 }
 
-function _inspectClearAll() {
+function _inspectClearAll(): void {
   _inspectClearOverlays();
   _inspectSelected = null;
   _inspectHovered = null;
 }
 
-function _inspectRenderHover() {
+function _inspectRenderHover(): void {
   _inspectClearOverlays();
   if (!_inspectHovered) return;
   _inspectDrawHighlight(_inspectHovered.getBoundingClientRect(), 'hovered');
 }
 
-function _inspectRender() {
+function _inspectRender(): void {
   _inspectClearOverlays();
   if (!_inspectSelected || !_inspectHovered) return;
 
-  var selRect = _inspectSelected.getBoundingClientRect();
-  var hovRect = _inspectHovered.getBoundingClientRect();
+  const selRect = _inspectSelected.getBoundingClientRect();
+  const hovRect = _inspectHovered.getBoundingClientRect();
 
   _inspectDrawHighlight(selRect, 'selected');
   _inspectDrawHighlight(hovRect, 'hovered');
   _inspectComputeMeasurements(selRect, hovRect);
 }
 
-function _inspectDrawHighlight(rect, type) {
-  var outlineColor = type === 'selected' ? INSPECT_BLUE_OUTLINE : INSPECT_GREEN_OUTLINE;
-  var fillColor = type === 'selected' ? INSPECT_BLUE_FILL : INSPECT_GREEN_FILL;
+function _inspectDrawHighlight(rect: DOMRect, type: 'selected' | 'hovered'): void {
+  const outlineColor = type === 'selected' ? INSPECT_BLUE_OUTLINE : INSPECT_GREEN_OUTLINE;
+  const fillColor = type === 'selected' ? INSPECT_BLUE_FILL : INSPECT_GREEN_FILL;
 
-  var el = document.createElement('div');
+  const el = document.createElement('div');
   el.style.cssText = [
     'position:fixed',
     'top:' + rect.top + 'px',
@@ -240,14 +232,11 @@ function _inspectDrawHighlight(rect, type) {
   _inspectOverlayEls.push(el);
 }
 
-// ── Measurement computation ──────────────────────────────────────────────
-
-function _inspectComputeMeasurements(selRect, hovRect) {
-  // Check containment (internal mode)
-  var selContainsHov = selRect.left <= hovRect.left && selRect.right >= hovRect.right &&
-                       selRect.top <= hovRect.top && selRect.bottom >= hovRect.bottom;
-  var hovContainsSel = hovRect.left <= selRect.left && hovRect.right >= selRect.right &&
-                       hovRect.top <= selRect.top && hovRect.bottom >= selRect.bottom;
+function _inspectComputeMeasurements(selRect: DOMRect, hovRect: DOMRect): void {
+  const selContainsHov = selRect.left <= hovRect.left && selRect.right >= hovRect.right &&
+                         selRect.top <= hovRect.top && selRect.bottom >= hovRect.bottom;
+  const hovContainsSel = hovRect.left <= selRect.left && hovRect.right >= selRect.right &&
+                         hovRect.top <= selRect.top && hovRect.bottom >= selRect.bottom;
 
   if (selContainsHov) {
     _inspectDrawInset(selRect, hovRect);
@@ -258,30 +247,25 @@ function _inspectComputeMeasurements(selRect, hovRect) {
     return;
   }
 
-  // Check overlap on each axis
-  var hOverlap = Math.min(selRect.right, hovRect.right) - Math.max(selRect.left, hovRect.left);
-  var vOverlap = Math.min(selRect.bottom, hovRect.bottom) - Math.max(selRect.top, hovRect.top);
+  const hOverlap = Math.min(selRect.right, hovRect.right) - Math.max(selRect.left, hovRect.left);
+  const vOverlap = Math.min(selRect.bottom, hovRect.bottom) - Math.max(selRect.top, hovRect.top);
 
-  // Both axes overlap — elements visually overlap, no measurements
   if (hOverlap > 0 && vOverlap > 0) return;
 
-  var showHorizontal = false;
-  var showVertical = false;
+  let showHorizontal = false;
+  let showVertical = false;
 
   if (hOverlap > 0 && vOverlap <= 0) {
-    // Horizontal overlap → show vertical distance
     showVertical = true;
   } else if (vOverlap > 0 && hOverlap <= 0) {
-    // Vertical overlap → show horizontal distance
     showHorizontal = true;
   } else {
-    // No overlap on either axis → show both
     showHorizontal = true;
     showVertical = true;
   }
 
   if (showHorizontal) {
-    var leftEdge, rightEdge;
+    let leftEdge: number, rightEdge: number;
     if (selRect.right <= hovRect.left) {
       leftEdge = selRect.right;
       rightEdge = hovRect.left;
@@ -289,9 +273,9 @@ function _inspectComputeMeasurements(selRect, hovRect) {
       leftEdge = hovRect.right;
       rightEdge = selRect.left;
     }
-    var hDist = rightEdge - leftEdge;
+    const hDist = rightEdge - leftEdge;
     if (hDist > 0) {
-      var midY;
+      let midY: number;
       if (vOverlap > 0) {
         midY = (Math.max(selRect.top, hovRect.top) + Math.min(selRect.bottom, hovRect.bottom)) / 2;
       } else {
@@ -302,7 +286,7 @@ function _inspectComputeMeasurements(selRect, hovRect) {
   }
 
   if (showVertical) {
-    var topEdge, bottomEdge;
+    let topEdge: number, bottomEdge: number;
     if (selRect.bottom <= hovRect.top) {
       topEdge = selRect.bottom;
       bottomEdge = hovRect.top;
@@ -310,9 +294,9 @@ function _inspectComputeMeasurements(selRect, hovRect) {
       topEdge = hovRect.bottom;
       bottomEdge = selRect.top;
     }
-    var vDist = bottomEdge - topEdge;
+    const vDist = bottomEdge - topEdge;
     if (vDist > 0) {
-      var midX;
+      let midX: number;
       if (hOverlap > 0) {
         midX = (Math.max(selRect.left, hovRect.left) + Math.min(selRect.right, hovRect.right)) / 2;
       } else {
@@ -323,10 +307,8 @@ function _inspectComputeMeasurements(selRect, hovRect) {
   }
 }
 
-// ── Draw measurement line + label ────────────────────────────────────────
-
-function _inspectDrawLine(x, y, length, isHorizontal, value) {
-  var line = document.createElement('div');
+function _inspectDrawLine(x: number, y: number, length: number, isHorizontal: boolean, value: number): void {
+  const line = document.createElement('div');
   if (isHorizontal) {
     line.style.cssText = [
       'position:fixed',
@@ -353,8 +335,7 @@ function _inspectDrawLine(x, y, length, isHorizontal, value) {
   host.appendChild(line);
   _inspectOverlayEls.push(line);
 
-  // End caps
-  var capSize = 5;
+  const capSize = 5;
   if (isHorizontal) {
     _inspectDrawCap(x, y - capSize, 1, capSize * 2);
     _inspectDrawCap(x + length - 1, y - capSize, 1, capSize * 2);
@@ -363,8 +344,7 @@ function _inspectDrawLine(x, y, length, isHorizontal, value) {
     _inspectDrawCap(x - capSize, y + length - 1, capSize * 2, 1);
   }
 
-  // Label
-  var lbl = document.createElement('span');
+  const lbl = document.createElement('span');
   lbl.textContent = value + 'px';
   lbl.style.cssText = [
     'position:fixed',
@@ -378,11 +358,10 @@ function _inspectDrawLine(x, y, length, isHorizontal, value) {
     'z-index:2147483647',
   ].join(';');
 
-  // Temporarily add to measure width
   lbl.style.visibility = 'hidden';
   host.appendChild(lbl);
-  var lblWidth = lbl.offsetWidth;
-  var lblHeight = lbl.offsetHeight;
+  const lblWidth = lbl.offsetWidth;
+  const lblHeight = lbl.offsetHeight;
   lbl.style.visibility = '';
 
   if (isHorizontal) {
@@ -396,8 +375,8 @@ function _inspectDrawLine(x, y, length, isHorizontal, value) {
   _inspectOverlayEls.push(lbl);
 }
 
-function _inspectDrawCap(x, y, w, h) {
-  var cap = document.createElement('div');
+function _inspectDrawCap(x: number, y: number, w: number, h: number): void {
+  const cap = document.createElement('div');
   cap.style.cssText = [
     'position:fixed',
     'top:' + y + 'px',
@@ -412,42 +391,34 @@ function _inspectDrawCap(x, y, w, h) {
   _inspectOverlayEls.push(cap);
 }
 
-// ── Internal (inset) measurements ────────────────────────────────────────
+function _inspectDrawInset(containerRect: DOMRect, childRect: DOMRect): void {
+  const top = childRect.top - containerRect.top;
+  const bottom = containerRect.bottom - childRect.bottom;
+  const left = childRect.left - containerRect.left;
+  const right = containerRect.right - childRect.right;
 
-function _inspectDrawInset(containerRect, childRect) {
-  var top = childRect.top - containerRect.top;
-  var bottom = containerRect.bottom - childRect.bottom;
-  var left = childRect.left - containerRect.left;
-  var right = containerRect.right - childRect.right;
-
-  // Top inset
   if (top > 0) {
-    var cx = childRect.left + childRect.width / 2;
+    const cx = childRect.left + childRect.width / 2;
     _inspectDrawLine(cx, containerRect.top, top, false, Math.round(top));
   }
 
-  // Bottom inset
   if (bottom > 0) {
-    var cx2 = childRect.left + childRect.width / 2;
+    const cx2 = childRect.left + childRect.width / 2;
     _inspectDrawLine(cx2, childRect.bottom, bottom, false, Math.round(bottom));
   }
 
-  // Left inset
   if (left > 0) {
-    var cy = childRect.top + childRect.height / 2;
+    const cy = childRect.top + childRect.height / 2;
     _inspectDrawLine(containerRect.left, cy, left, true, Math.round(left));
   }
 
-  // Right inset
   if (right > 0) {
-    var cy2 = childRect.top + childRect.height / 2;
+    const cy2 = childRect.top + childRect.height / 2;
     _inspectDrawLine(childRect.right, cy2, right, true, Math.round(right));
   }
 }
 
-// ── Helpers ──────────────────────────────────────────────────────────────
-
-function _inspectIsInViewport(rect) {
+function _inspectIsInViewport(rect: DOMRect): boolean {
   return rect.bottom > 0 && rect.top < window.innerHeight &&
          rect.right > 0 && rect.left < window.innerWidth;
 }

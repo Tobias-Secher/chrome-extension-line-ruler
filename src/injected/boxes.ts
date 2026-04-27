@@ -1,9 +1,7 @@
-// ─── Box creation ─────────────────────────────────────────────────────────
-
-function createBox(id, x, y, w, h, color) {
-  let el = document.createElement('div');
+export function createBox(id: string, x: number, y: number, w: number, h: number, color: string): HTMLElement {
+  const el = document.createElement('div');
   el.className = '__rl-box';
-  el.dataset.id = id;
+  el.dataset['id'] = id;
   el.style.cssText = [
     'position:fixed',
     'left:' + x + 'px',
@@ -16,8 +14,7 @@ function createBox(id, x, y, w, h, color) {
     'pointer-events:none',
   ].join(';');
 
-  // Central drag zone — inset 8px from edges, safe from all resize handle overlap
-  let dragZone = document.createElement('div');
+  const dragZone = document.createElement('div');
   dragZone.className = '__rl-box-drag';
   dragZone.style.cssText = [
     'position:absolute',
@@ -31,8 +28,7 @@ function createBox(id, x, y, w, h, color) {
   attachMoveHandler(dragZone, el, id);
   el.appendChild(dragZone);
 
-  // Center crosshair — horizontal
-  let crossH = document.createElement('div');
+  const crossH = document.createElement('div');
   crossH.className = '__rl-box-crosshair';
   crossH.style.cssText = [
     'position:absolute',
@@ -46,8 +42,7 @@ function createBox(id, x, y, w, h, color) {
     'transform:translateY(-0.5px)',
   ].join(';');
 
-  // Center crosshair — vertical
-  let crossV = document.createElement('div');
+  const crossV = document.createElement('div');
   crossV.className = '__rl-box-crosshair';
   crossV.style.cssText = [
     'position:absolute',
@@ -61,8 +56,12 @@ function createBox(id, x, y, w, h, color) {
     'transform:translateX(-0.5px)',
   ].join(';');
 
-  // Resize handles — corners (visible) and edges (transparent, cursor only)
-  let handleDefs = [
+  interface HandleDef {
+    dir: string;
+    css: string;
+    corner: boolean;
+  }
+  const handleDefs: HandleDef[] = [
     { dir: 'nw', css: 'top:-4px;left:-4px;width:8px;height:8px;cursor:nwse-resize', corner: true },
     { dir: 'ne', css: 'top:-4px;right:-4px;width:8px;height:8px;cursor:nesw-resize', corner: true },
     { dir: 'se', css: 'bottom:-4px;right:-4px;width:8px;height:8px;cursor:nwse-resize', corner: true },
@@ -72,10 +71,11 @@ function createBox(id, x, y, w, h, color) {
     { dir: 'e',  css: 'top:8px;right:-4px;bottom:8px;width:8px;cursor:ew-resize', corner: false },
     { dir: 'w',  css: 'top:8px;left:-4px;bottom:8px;width:8px;cursor:ew-resize', corner: false },
   ];
-  handleDefs.forEach(function (def) {
-    let handle = document.createElement('div');
+
+  for (const def of handleDefs) {
+    const handle = document.createElement('div');
     handle.className = '__rl-box-handle';
-    handle.dataset.resize = def.dir;
+    handle.dataset['resize'] = def.dir;
     handle.style.cssText = [
       'position:absolute',
       def.css,
@@ -85,10 +85,9 @@ function createBox(id, x, y, w, h, color) {
     ].join(';');
     attachResizeHandler(handle, el, id);
     el.appendChild(handle);
-  });
+  }
 
-  // Dimension label — shown below the box
-  let label = document.createElement('span');
+  const label = document.createElement('span');
   label.className = '__rl-box-label';
   label.style.cssText = [
     'position:absolute',
@@ -102,7 +101,7 @@ function createBox(id, x, y, w, h, color) {
     'pointer-events:none',
     'white-space:nowrap',
   ].join(';');
-  label.textContent = w + ' \u00d7 ' + h;
+  label.textContent = w + ' × ' + h;
 
   el.appendChild(crossH);
   el.appendChild(crossV);
@@ -110,10 +109,8 @@ function createBox(id, x, y, w, h, color) {
   return el;
 }
 
-// ─── Box move handling ────────────────────────────────────────────────────
-
-function attachMoveHandler(strip, el, id) {
-  strip.addEventListener('mousedown', function (e) {
+function attachMoveHandler(strip: HTMLElement, el: HTMLElement, id: string): void {
+  strip.addEventListener('mousedown', (e: MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
 
@@ -124,35 +121,33 @@ function attachMoveHandler(strip, el, id) {
 
     window.__UITools.isDragging = true;
 
-    function onMove(e) {
-      const newX = origX + (e.clientX - startX);
-      const newY = origY + (e.clientY - startY);
+    const onMove = (ev: MouseEvent): void => {
+      const newX = origX + (ev.clientX - startX);
+      const newY = origY + (ev.clientY - startY);
       const w = parseInt(el.style.width);
       const h = parseInt(el.style.height);
       el.style.left = newX + 'px';
       el.style.top = newY + 'px';
-      window.__UITools.pendingUpdate = { type: 'box', id: id, x: newX, y: newY, w: w, h: h };
-    }
+      window.__UITools.pendingUpdate = { type: 'box', id, x: newX, y: newY, w, h };
+    };
 
-    function onUp() {
+    const onUp = (): void => {
       window.__UITools.isDragging = false;
       document.removeEventListener('mousemove', onMove, true);
       document.removeEventListener('mouseup', onUp, true);
-    }
+    };
 
     document.addEventListener('mousemove', onMove, true);
     document.addEventListener('mouseup', onUp, true);
   });
 }
 
-// ─── Box resize handling ──────────────────────────────────────────────────
-
-function attachResizeHandler(handle, el, id) {
-  handle.addEventListener('mousedown', function (e) {
+function attachResizeHandler(handle: HTMLElement, el: HTMLElement, id: string): void {
+  handle.addEventListener('mousedown', (e: MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
 
-    const dir = handle.dataset.resize;
+    const dir = handle.dataset['resize'] ?? '';
     const startX = e.clientX;
     const startY = e.clientY;
     const origX = parseInt(el.style.left) || 0;
@@ -162,9 +157,9 @@ function attachResizeHandler(handle, el, id) {
 
     window.__UITools.isDragging = true;
 
-    function onMove(e) {
-      const dx = e.clientX - startX;
-      const dy = e.clientY - startY;
+    const onMove = (ev: MouseEvent): void => {
+      const dx = ev.clientX - startX;
+      const dy = ev.clientY - startY;
       let newX = origX, newY = origY, newW = origW, newH = origH;
 
       if (dir.indexOf('e') !== -1) { newW = Math.max(20, origW + dx); }
@@ -177,17 +172,17 @@ function attachResizeHandler(handle, el, id) {
       el.style.width = newW + 'px';
       el.style.height = newH + 'px';
 
-      const label = el.querySelector('.__rl-box-label');
-      if (label) label.textContent = newW + ' \u00d7 ' + newH;
+      const label = el.querySelector<HTMLElement>('.__rl-box-label');
+      if (label) label.textContent = newW + ' × ' + newH;
 
-      window.__UITools.pendingUpdate = { type: 'box', id: id, x: newX, y: newY, w: newW, h: newH };
-    }
+      window.__UITools.pendingUpdate = { type: 'box', id, x: newX, y: newY, w: newW, h: newH };
+    };
 
-    function onUp() {
+    const onUp = (): void => {
       window.__UITools.isDragging = false;
       document.removeEventListener('mousemove', onMove, true);
       document.removeEventListener('mouseup', onUp, true);
-    }
+    };
 
     document.addEventListener('mousemove', onMove, true);
     document.addEventListener('mouseup', onUp, true);

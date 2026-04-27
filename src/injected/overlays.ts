@@ -1,12 +1,15 @@
+import type { BoxModelDims, StyleGroup } from '../shared/api';
+import { host, guides } from './state';
+
 // ─── Box model overlay ────────────────────────────────────────────────────
 
-var _bmEls = [];
+let _bmEls: HTMLElement[] = [];
 
-function setBoxModel(d) {
-  _bmEls.forEach(function (el) { el.parentNode && el.parentNode.removeChild(el); });
+export function setBoxModel(d: BoxModelDims): void {
+  for (const el of _bmEls) { el.parentNode?.removeChild(el); }
   _bmEls = [];
 
-  var layers = [
+  const layers = [
     {
       t: d.y - d.mt, l: d.x - d.ml,
       w: d.w + d.ml + d.mr, h: d.h + d.mt + d.mb,
@@ -29,8 +32,8 @@ function setBoxModel(d) {
     },
   ];
 
-  layers.forEach(function (layer, i) {
-    var el = document.createElement('div');
+  layers.forEach((layer, i) => {
+    const el = document.createElement('div');
     el.className = '__rl-bm';
     el.style.cssText = [
       'position:fixed',
@@ -47,19 +50,23 @@ function setBoxModel(d) {
   });
 }
 
-function clearBoxModel() {
-  _bmEls.forEach(function (el) { el.parentNode && el.parentNode.removeChild(el); });
+export function clearBoxModel(): void {
+  for (const el of _bmEls) { el.parentNode?.removeChild(el); }
   _bmEls = [];
 }
 
 // ─── Box Model Picker ─────────────────────────────────────────────────────
 
-var _bmPickerActive = false;
-var _bmPickerInterceptor = null;
-var _bmPickerHighlight = null;
-var _bmPickerHandlers = {};
+let _bmPickerActive = false;
+let _bmPickerInterceptor: HTMLElement | null = null;
+let _bmPickerHighlight: HTMLElement | null = null;
+let _bmPickerHandlers: {
+  mousemove?: (e: MouseEvent) => void;
+  click?: (e: MouseEvent) => void;
+  keydown?: (e: KeyboardEvent) => void;
+} = {};
 
-function setBoxModelPicker(enable) {
+export function setBoxModelPicker(enable: boolean): void {
   if (enable && _bmPickerActive) return;
   if (!enable && !_bmPickerActive) return;
 
@@ -90,30 +97,31 @@ function setBoxModelPicker(enable) {
     _bmPickerActive = false;
     _bmPickerClearHighlight();
     if (_bmPickerInterceptor) {
-      _bmPickerInterceptor.removeEventListener('mousemove', _bmPickerHandlers.mousemove);
-      _bmPickerInterceptor.removeEventListener('click', _bmPickerHandlers.click);
-      _bmPickerInterceptor.parentNode && _bmPickerInterceptor.parentNode.removeChild(_bmPickerInterceptor);
+      if (_bmPickerHandlers.mousemove) _bmPickerInterceptor.removeEventListener('mousemove', _bmPickerHandlers.mousemove);
+      if (_bmPickerHandlers.click) _bmPickerInterceptor.removeEventListener('click', _bmPickerHandlers.click);
+      _bmPickerInterceptor.parentNode?.removeChild(_bmPickerInterceptor);
       _bmPickerInterceptor = null;
     }
-    document.removeEventListener('keydown', _bmPickerHandlers.keydown, true);
+    if (_bmPickerHandlers.keydown) document.removeEventListener('keydown', _bmPickerHandlers.keydown, true);
     _bmPickerHandlers = {};
   }
 }
 
-function _bmPickerElementFromPoint(x, y) {
+function _bmPickerElementFromPoint(x: number, y: number): Element | null {
+  if (!_bmPickerInterceptor) return null;
   _bmPickerInterceptor.style.pointerEvents = 'none';
-  var el = document.elementFromPoint(x, y);
+  const el = document.elementFromPoint(x, y);
   _bmPickerInterceptor.style.pointerEvents = 'all';
   if (el && host.contains(el)) return null;
   return el;
 }
 
-function _bmPickerOnMouseMove(e) {
-  var el = _bmPickerElementFromPoint(e.clientX, e.clientY);
+function _bmPickerOnMouseMove(e: MouseEvent): void {
+  const el = _bmPickerElementFromPoint(e.clientX, e.clientY);
   _bmPickerClearHighlight();
   if (!el) return;
 
-  var r = el.getBoundingClientRect();
+  const r = el.getBoundingClientRect();
   _bmPickerHighlight = document.createElement('div');
   _bmPickerHighlight.style.cssText = [
     'position:fixed',
@@ -130,16 +138,16 @@ function _bmPickerOnMouseMove(e) {
   host.appendChild(_bmPickerHighlight);
 }
 
-function _bmPickerOnClick(e) {
+function _bmPickerOnClick(e: MouseEvent): void {
   e.preventDefault();
   e.stopPropagation();
 
-  var el = _bmPickerElementFromPoint(e.clientX, e.clientY);
+  const el = _bmPickerElementFromPoint(e.clientX, e.clientY);
   if (!el) return;
 
-  var r = el.getBoundingClientRect();
-  var s = window.getComputedStyle(el);
-  var d = {
+  const r = el.getBoundingClientRect();
+  const s = window.getComputedStyle(el);
+  const d: BoxModelDims = {
     x: r.left, y: r.top, w: r.width, h: r.height,
     pt: parseFloat(s.paddingTop), pr: parseFloat(s.paddingRight),
     pb: parseFloat(s.paddingBottom), pl: parseFloat(s.paddingLeft),
@@ -157,18 +165,18 @@ function _bmPickerOnClick(e) {
   };
 }
 
-function _buildIdent(el) {
-  var tag = el.tagName ? el.tagName.toLowerCase() : '';
-  var id = el.id ? '#' + el.id : '';
-  var classes = '';
+function _buildIdent(el: Element): string {
+  const tag = el.tagName ? el.tagName.toLowerCase() : '';
+  const id = el.id ? '#' + el.id : '';
+  let classes = '';
   if (el.classList && el.classList.length) {
-    for (var i = 0; i < el.classList.length; i++) classes += '.' + el.classList[i];
+    for (let i = 0; i < el.classList.length; i++) classes += '.' + el.classList[i];
   }
   return tag + classes + id;
 }
 
-function _collectStyleGroups(s) {
-  var groups = [
+function _collectStyleGroups(s: CSSStyleDeclaration): StyleGroup[] {
+  const groups: StyleGroup[] = [
     {
       name: 'Typography',
       rows: [
@@ -195,7 +203,7 @@ function _collectStyleGroups(s) {
     },
   ];
 
-  var layoutRows = [
+  const layoutRows: [string, string][] = [
     ['display', s.display],
     ['position', s.position],
     ['z-index', s.zIndex],
@@ -247,7 +255,7 @@ function _collectStyleGroups(s) {
   return groups;
 }
 
-function _bmPickerOnKeyDown(e) {
+function _bmPickerOnKeyDown(e: KeyboardEvent): void {
   if (e.key === 'Escape' && _bmPickerActive) {
     e.preventDefault();
     e.stopPropagation();
@@ -256,35 +264,35 @@ function _bmPickerOnKeyDown(e) {
   }
 }
 
-function _bmPickerClearHighlight() {
+function _bmPickerClearHighlight(): void {
   if (_bmPickerHighlight) {
-    _bmPickerHighlight.parentNode && _bmPickerHighlight.parentNode.removeChild(_bmPickerHighlight);
+    _bmPickerHighlight.parentNode?.removeChild(_bmPickerHighlight);
     _bmPickerHighlight = null;
   }
 }
 
 // ─── Nudge ────────────────────────────────────────────────────────────────
 
-function nudgeGuide(id, delta) {
-  var el = guides[id];
+export function nudgeGuide(id: string, delta: number): void {
+  const el = guides.get(id);
   if (!el) return;
-  var isH = el.classList.contains('__rl-h');
-  var prop = isH ? 'top' : 'left';
-  var cur = parseInt(el.style[prop]) || 0;
-  var next = Math.max(0, cur + delta);
+  const isH = el.classList.contains('__rl-h');
+  const prop = isH ? 'top' : 'left';
+  const cur = parseInt(el.style[prop]) || 0;
+  const next = Math.max(0, cur + delta);
   el.style[prop] = next + 'px';
-  var label = el.querySelector('.__rl-label');
+  const label = el.querySelector<HTMLElement>('.__rl-label');
   if (label) label.textContent = next + 'px';
-  window.__UITools.pendingUpdate = { type: 'guide', id: id, pos: next };
+  window.__UITools.pendingUpdate = { type: 'guide', id, pos: next };
 }
 
 // ─── Font inspector ────────────────────────────────────────────────────────
 
-var _fontActive = false;
-var _fontTip = null;
-var _fontMoveHandler = null;
+let _fontActive = false;
+let _fontTip: HTMLElement | null = null;
+let _fontMoveHandler: ((e: MouseEvent) => void) | null = null;
 
-function setFontInspector(enable) {
+export function setFontInspector(enable: boolean): void {
   if (enable === _fontActive) return;
   _fontActive = enable;
 
@@ -307,22 +315,23 @@ function setFontInspector(enable) {
     ].join(';');
     host.appendChild(_fontTip);
 
-    _fontMoveHandler = function (e) {
-      var el = e.target;
+    _fontMoveHandler = (e: MouseEvent): void => {
+      const el = e.target as Element | null;
       if (!el || el === _fontTip) return;
-      var s = window.getComputedStyle(el);
-      var family = s.fontFamily.split(',')[0].replace(/['"]/g, '').trim();
-      var size = s.fontSize;
-      var weight = s.fontWeight;
-      var lh = parseFloat(s.lineHeight) && parseFloat(s.fontSize)
+      const s = window.getComputedStyle(el);
+      const family = s.fontFamily.split(',')[0]!.replace(/['"]/g, '').trim();
+      const size = s.fontSize;
+      const weight = s.fontWeight;
+      const lh = parseFloat(s.lineHeight) && parseFloat(s.fontSize)
         ? (parseFloat(s.lineHeight) / parseFloat(s.fontSize)).toFixed(2)
         : s.lineHeight;
-      var dim = '<span style="color:#5a5a65">size</span>&nbsp;' + size +
+      const dim = '<span style="color:#5a5a65">size</span>&nbsp;' + size +
         '&nbsp;&nbsp;<span style="color:#5a5a65">weight</span>&nbsp;' + weight +
         '&nbsp;&nbsp;<span style="color:#5a5a65">lh</span>&nbsp;' + lh;
+      if (!_fontTip) return;
       _fontTip.innerHTML =
         '<span style="color:#9cdcfe">' + family + '</span><br>' + dim;
-      var tx = e.clientX + 14, ty = e.clientY + 14;
+      let tx = e.clientX + 14, ty = e.clientY + 14;
       if (tx + 160 > window.innerWidth) tx = e.clientX - 170;
       if (ty + 52 > window.innerHeight) ty = e.clientY - 58;
       _fontTip.style.left = tx + 'px';
@@ -331,7 +340,7 @@ function setFontInspector(enable) {
     };
     document.addEventListener('mousemove', _fontMoveHandler, true);
   } else {
-    document.removeEventListener('mousemove', _fontMoveHandler, true);
+    if (_fontMoveHandler) document.removeEventListener('mousemove', _fontMoveHandler, true);
     _fontMoveHandler = null;
     if (_fontTip) { _fontTip.remove(); _fontTip = null; }
     _fontActive = false;
@@ -340,12 +349,12 @@ function setFontInspector(enable) {
 
 // ─── Grid overlay ─────────────────────────────────────────────────────────
 
-function setGrid(visible, columns, gap, color) {
-  var existing = document.getElementById('__rl-grid');
-  if (existing) { existing.parentNode && existing.parentNode.removeChild(existing); }
+export function setGrid(visible: boolean, columns: number, gap: number, color: string): void {
+  const existing = document.getElementById('__rl-grid');
+  if (existing) { existing.parentNode?.removeChild(existing); }
   if (!visible) return;
 
-  var grid = document.createElement('div');
+  const grid = document.createElement('div');
   grid.id = '__rl-grid';
   grid.style.cssText = [
     'position:fixed',
@@ -360,8 +369,8 @@ function setGrid(visible, columns, gap, color) {
     'z-index:2147483645',
   ].join(';');
 
-  for (var i = 0; i < columns; i++) {
-    var col = document.createElement('div');
+  for (let i = 0; i < columns; i++) {
+    const col = document.createElement('div');
     col.style.cssText = 'background:' + color + ';opacity:0.12;pointer-events:none;';
     grid.appendChild(col);
   }
