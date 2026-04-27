@@ -56,7 +56,7 @@ Switch panel chrome between **Beach Boy** (light), **Cave Man** (dark), or **Aut
 1. Clone or download the repository
 2. Run the build script:
    ```bash
-   bash build.sh
+   npm install && npm run release
    ```
 3. Open `chrome://extensions/`
 4. Enable **Developer mode** (top right)
@@ -69,7 +69,7 @@ Switch panel chrome between **Beach Boy** (light), **Cave Man** (dark), or **Aut
 1. Clone or download the repository
 2. Run the build script:
    ```bash
-   bash build.sh
+   npm install && npm run release
    ```
 3. Open `about:debugging#/runtime/this-firefox`
 4. Click **Load Temporary Add-on**
@@ -105,10 +105,12 @@ Switch panel chrome between **Beach Boy** (light), **Cave Man** (dark), or **Aut
 
 ## Building
 
-The build script packages the extension for both Chrome and Firefox:
+Install dependencies, then build:
 
 ```bash
-bash build.sh
+npm install
+npm run build      # development build with source maps
+npm run release    # production build (minified, no source maps, creates .zip packages)
 ```
 
 This creates:
@@ -117,7 +119,7 @@ This creates:
 - `ui-tools-chrome-v{VERSION}.zip` — Chrome Web Store package
 - `ui-tools-firefox-v{VERSION}.zip` — Firefox Add-ons package
 
-No build tools, bundlers, or npm dependencies required.
+Build uses **TypeScript** (type checking) + **esbuild** (bundling). No runtime dependencies.
 
 ---
 
@@ -128,28 +130,32 @@ chrome-extension-line-ruler/
 ├── manifest.json              # Extension manifest (Manifest V3)
 ├── devtools.html / .js        # DevTools panel entry point
 ├── panel.html                 # Main panel UI layout
-├── build.sh                   # Chrome/Firefox build & packaging
+├── build.mjs                  # esbuild config & Chrome/Firefox packaging
+├── tsconfig.json              # TypeScript compiler config
 ├── icons/                     # Extension icons (16/48/128)
 ├── src/
+│   ├── shared/
+│   │   └── api.ts             # Shared types for panel ↔ injected API
 │   ├── panel/                 # DevTools panel logic
-│   │   ├── init.js            # Event listeners & startup
-│   │   ├── state.js           # Global state & color rotation
-│   │   ├── bridge.js          # Page injection bridge
-│   │   ├── guides.js          # Guide CRUD operations
-│   │   ├── boxes.js           # Box CRUD operations
-│   │   ├── render.js          # UI list rendering
-│   │   ├── sync.js            # Polling for page updates
-│   │   ├── features.js        # Feature toggles & breakpoints
+│   │   ├── init.ts            # Event listeners & startup
+│   │   ├── state.ts           # Global state & color rotation
+│   │   ├── bridge.ts          # Page injection bridge
+│   │   ├── guides.ts          # Guide CRUD operations
+│   │   ├── boxes.ts           # Box CRUD operations
+│   │   ├── render.ts          # UI list rendering
+│   │   ├── sync.ts            # Polling for page updates
+│   │   ├── features.ts        # Feature toggles & breakpoints
+│   │   ├── theme.ts           # Theme switching & persistence
 │   │   └── styles/            # Panel stylesheets
 │   └── injected/              # Scripts injected into the page
-│       ├── constants.js       # Dimensions, colors, host setup
-│       ├── rulers.js          # Ruler bars & drag-to-create
-│       ├── guides.js          # Guide rendering & dragging
-│       ├── boxes.js           # Box creation, drag, resize
-│       ├── overlays.js        # Box model, font inspector, grid
-│       ├── inspect.js         # DOM spacing inspector
-│       ├── crosshair.js       # Crosshair overlay
-│       └── api.js             # Public API for DevTools bridge
+│       ├── state.ts           # Shared state & constants
+│       ├── rulers.ts          # Ruler bars & drag-to-create
+│       ├── guides.ts          # Guide rendering & dragging
+│       ├── boxes.ts           # Box creation, drag, resize
+│       ├── overlays.ts        # Box model, font inspector, grid
+│       ├── inspect.ts         # DOM spacing inspector
+│       ├── crosshair.ts       # Crosshair overlay
+│       └── api.ts             # Public API for DevTools bridge
 └── dist/                      # Build output
 ```
 
@@ -171,12 +177,23 @@ All visual elements are injected into a single fixed-position container with `po
 
 ## Technical Details
 
-- **Pure vanilla JavaScript** — no frameworks, libraries, or external dependencies
+- **TypeScript** compiled with **esbuild** — no frameworks or runtime dependencies
 - **Manifest V3** — uses the latest Chrome extension standard
 - **No permissions required** — works entirely through the DevTools API
 - **Viewport-relative positioning** — guides use `position: fixed`, rulers use `position: sticky`
 - **High z-index stacking** — overlays at z-index `2147483647` to stay above page content
 - **6-color palette** — automatic rotation through red, blue, green, orange, purple, teal
+
+---
+
+## Privacy
+
+- **No data collected or transmitted** — the extension makes no network requests
+- **No external servers** — all processing happens locally in the browser
+- **`localStorage`** used only to persist the panel theme preference (Beach Boy / Cave Man / Auto); stored in the DevTools panel's own sandboxed origin, never accessible to the inspected page
+- **No `storage` permission** declared in the manifest — DevTools panels have isolated storage by default
+- **Visual overlays** injected into the inspected page exist only while DevTools is open and are fully removed on close
+- **No host permissions, content scripts, or background workers**
 
 ---
 
