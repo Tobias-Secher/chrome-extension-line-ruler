@@ -3,3 +3,5 @@ dist/
 .superpowers
 docs
 DS_Store
+node_modules/
+*.tsbuildinfo

@@ -1,7 +1,9 @@
-// ─── Ruler bars ───────────────────────────────────────────────────────────
+import type { Axis } from '../shared/api';
+import { host, guides, RULER_SIZE, RULER_BG, TICK_COLOR, LABEL_COLOR } from './state';
+import { createGuide } from './guides';
 
-function buildRulerTop() {
-  var ruler = document.createElement('div');
+function buildRulerTop(): HTMLElement {
+  const ruler = document.createElement('div');
   ruler.id = '__rl-ruler-top';
   ruler.style.cssText = [
     'position:fixed',
@@ -15,14 +17,14 @@ function buildRulerTop() {
     'overflow:hidden',
   ].join(';');
 
-  var vw = Math.max(window.innerWidth, 2000);
-  var frag = document.createDocumentFragment();
-  for (var x = 0; x <= vw; x += 10) {
-    var isMajor = x % 100 === 0;
-    var isMid = x % 50 === 0;
-    var tickH = isMajor ? RULER_SIZE : isMid ? 10 : 5;
+  const vw = Math.max(window.innerWidth, 2000);
+  const frag = document.createDocumentFragment();
+  for (let x = 0; x <= vw; x += 10) {
+    const isMajor = x % 100 === 0;
+    const isMid = x % 50 === 0;
+    const tickH = isMajor ? RULER_SIZE : isMid ? 10 : 5;
 
-    var tick = document.createElement('div');
+    const tick = document.createElement('div');
     tick.style.cssText = [
       'position:absolute',
       'left:' + x + 'px',
@@ -34,8 +36,8 @@ function buildRulerTop() {
     ].join(';');
 
     if (isMajor && x > 0) {
-      var lbl = document.createElement('span');
-      lbl.textContent = x;
+      const lbl = document.createElement('span');
+      lbl.textContent = String(x);
       lbl.style.cssText = [
         'position:absolute',
         'top:2px',
@@ -54,8 +56,8 @@ function buildRulerTop() {
   return ruler;
 }
 
-function buildRulerLeft() {
-  var ruler = document.createElement('div');
+function buildRulerLeft(): HTMLElement {
+  const ruler = document.createElement('div');
   ruler.id = '__rl-ruler-left';
   ruler.style.cssText = [
     'position:fixed',
@@ -69,14 +71,14 @@ function buildRulerLeft() {
     'overflow:hidden',
   ].join(';');
 
-  var vh = Math.max(window.innerHeight, 2000);
-  var frag = document.createDocumentFragment();
-  for (var y = 0; y <= vh; y += 10) {
-    var isMajor = y % 100 === 0;
-    var isMid = y % 50 === 0;
-    var tickW = isMajor ? RULER_SIZE : isMid ? 10 : 5;
+  const vh = Math.max(window.innerHeight, 2000);
+  const frag = document.createDocumentFragment();
+  for (let y = 0; y <= vh; y += 10) {
+    const isMajor = y % 100 === 0;
+    const isMid = y % 50 === 0;
+    const tickW = isMajor ? RULER_SIZE : isMid ? 10 : 5;
 
-    var tick = document.createElement('div');
+    const tick = document.createElement('div');
     tick.style.cssText = [
       'position:absolute',
       'top:' + y + 'px',
@@ -88,8 +90,8 @@ function buildRulerLeft() {
     ].join(';');
 
     if (isMajor && y > 0) {
-      var lbl = document.createElement('span');
-      lbl.textContent = y;
+      const lbl = document.createElement('span');
+      lbl.textContent = String(y);
       lbl.style.cssText = [
         'position:absolute',
         'top:2px',
@@ -110,8 +112,8 @@ function buildRulerLeft() {
   return ruler;
 }
 
-function buildCornerCap() {
-  var cap = document.createElement('div');
+function buildCornerCap(): HTMLElement {
+  const cap = document.createElement('div');
   cap.id = '__rl-ruler-corner';
   cap.style.cssText = [
     'position:fixed',
@@ -131,56 +133,54 @@ if (!document.getElementById('__rl-ruler-top')) {
   host.appendChild(buildCornerCap());
 }
 
-// ─── Ruler drag-to-create ─────────────────────────────────────────────────
-
-function attachRulerDrag() {
-  var top = document.getElementById('__rl-ruler-top');
-  var left = document.getElementById('__rl-ruler-left');
+function attachRulerDrag(): void {
+  const top = document.getElementById('__rl-ruler-top');
+  const left = document.getElementById('__rl-ruler-left');
   if (!top || !left) return;
 
-  function startDrag(e, axis) {
+  function startDrag(e: MouseEvent, axis: Axis): void {
     e.preventDefault();
     e.stopPropagation();
-    var isH = axis === 'h';
-    var pos = isH ? e.clientY : e.clientX;
-    var tempId = '_d' + Date.now();
+    const isH = axis === 'h';
+    const tempId = '_d' + Date.now();
+    const startPos = isH ? e.clientY : e.clientX;
 
-    var el = createGuide(tempId, axis, pos, '#888');
-    guides[tempId] = el;
+    const el = createGuide(tempId, axis, startPos, '#888');
+    guides.set(tempId, el);
     host.appendChild(el);
     window.__UITools.isDragging = true;
 
-    function onMove(ev) {
-      var newPos = isH ? ev.clientY : ev.clientX;
+    const onMove = (ev: MouseEvent): void => {
+      let newPos = isH ? ev.clientY : ev.clientX;
       newPos = Math.max(0, newPos);
       el.style[isH ? 'top' : 'left'] = newPos + 'px';
-      var lbl = el.querySelector('.__rl-label');
+      const lbl = el.querySelector<HTMLElement>('.__rl-label');
       if (lbl) lbl.textContent = Math.round(newPos) + 'px';
-    }
+    };
 
-    function onUp(ev) {
+    const onUp = (ev: MouseEvent): void => {
       window.__UITools.isDragging = false;
       document.removeEventListener('mousemove', onMove, true);
       document.removeEventListener('mouseup', onUp, true);
-      var finalPos = isH ? ev.clientY : ev.clientX;
+      const finalPos = isH ? ev.clientY : ev.clientX;
       if (finalPos <= RULER_SIZE) {
         window.__UITools.removeGuide(tempId);
       } else {
         window.__UITools.pendingUpdate = {
           type: 'newGuide',
           id: tempId,
-          axis: axis,
+          axis,
           pos: Math.round(finalPos),
         };
       }
-    }
+    };
 
     document.addEventListener('mousemove', onMove, true);
     document.addEventListener('mouseup', onUp, true);
   }
 
-  top.addEventListener('mousedown', function (e) { startDrag(e, 'h'); });
-  left.addEventListener('mousedown', function (e) { startDrag(e, 'v'); });
+  top.addEventListener('mousedown', (e: MouseEvent) => { startDrag(e, 'h'); });
+  left.addEventListener('mousedown', (e: MouseEvent) => { startDrag(e, 'v'); });
 }
 
 attachRulerDrag();

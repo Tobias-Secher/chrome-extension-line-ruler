@@ -1,9 +1,11 @@
-// ─── Guide creation ───────────────────────────────────────────────────────
+import type { Axis, UIToolsRuntime } from '../shared/api';
 
-function createGuide(id, axis, pos, color) {
-  let el = document.createElement('div');
+declare const __UITools: UIToolsRuntime;
+
+export function createGuide(id: string, axis: Axis, pos: number, color: string): HTMLElement {
+  const el = document.createElement('div');
   el.className = '__rl-guide __rl-' + axis;
-  el.dataset.id = id;
+  el.dataset['id'] = id;
 
   const isH = axis === 'h';
   el.style.cssText = [
@@ -16,7 +18,7 @@ function createGuide(id, axis, pos, color) {
     'pointer-events:none',
   ].join(';');
 
-  let handle = document.createElement('div');
+  const handle = document.createElement('div');
   handle.className = '__rl-handle';
   handle.style.cssText = [
     'position:absolute',
@@ -29,7 +31,7 @@ function createGuide(id, axis, pos, color) {
   ].join(';');
   attachDragHandler(handle, el, id, isH);
 
-  let label = document.createElement('span');
+  const label = document.createElement('span');
   label.className = '__rl-label';
   label.textContent = pos + 'px';
   label.style.cssText = [
@@ -51,28 +53,26 @@ function createGuide(id, axis, pos, color) {
   return el;
 }
 
-// ─── Guide drag handling ──────────────────────────────────────────────────
-
-function attachDragHandler(handle, guideEl, id, isH) {
-  handle.addEventListener('mousedown', function (e) {
+function attachDragHandler(handle: HTMLElement, guideEl: HTMLElement, id: string, isH: boolean): void {
+  handle.addEventListener('mousedown', (e: MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     window.__UITools.isDragging = true;
 
-    function onMove(e) {
-      let pos = isH ? e.clientY : e.clientX;
+    const onMove = (ev: MouseEvent): void => {
+      let pos = isH ? ev.clientY : ev.clientX;
       pos = Math.max(0, pos);
       guideEl.style[isH ? 'top' : 'left'] = pos + 'px';
-      const label = guideEl.querySelector('.__rl-label');
+      const label = guideEl.querySelector<HTMLElement>('.__rl-label');
       if (label) label.textContent = pos + 'px';
-      window.__UITools.pendingUpdate = { type: 'guide', id: id, pos: pos };
-    }
+      window.__UITools.pendingUpdate = { type: 'guide', id, pos };
+    };
 
-    function onUp() {
+    const onUp = (): void => {
       window.__UITools.isDragging = false;
       document.removeEventListener('mousemove', onMove, true);
       document.removeEventListener('mouseup', onUp, true);
-    }
+    };
 
     document.addEventListener('mousemove', onMove, true);
     document.addEventListener('mouseup', onUp, true);
