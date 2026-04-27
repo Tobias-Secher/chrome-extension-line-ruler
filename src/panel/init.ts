@@ -5,6 +5,7 @@ import { addBox } from './boxes';
 import { renderGuideList, renderBoxList, renderSelected } from './render';
 import { updateCoordDisplay, ensurePolling } from './sync';
 import { clearAll, applyGrid, toggleInspect, toggleBoxModelPicker, scanBreakpoints } from './features';
+import { initTheme } from './theme';
 
 interface ToastEl extends HTMLElement {
   _timer?: ReturnType<typeof setTimeout>;
@@ -170,6 +171,8 @@ if (chrome.devtools && chrome.devtools.network && chrome.devtools.network.onNavi
     renderSelected();
   });
 }
+
+initTheme();
 
 renderGuideList();
 renderBoxList();
