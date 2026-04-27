@@ -67,7 +67,7 @@ button {
 
 button:hover {
   background: var(--bg-hover);
-  border-color: #3e3e48;
+  border-color: var(--text-dim);
 }
 
 button:active {
@@ -79,7 +79,8 @@ button:active {
 #btn-crosshair.active,
 #btn-grid.active,
 #btn-font.active,
-#btn-rulers.active {
+#btn-rulers.active,
+#theme-group button.active {
   background: var(--accent-bg);
   border-color: var(--accent-border);
   color: var(--accent-text);

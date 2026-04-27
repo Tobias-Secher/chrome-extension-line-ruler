@@ -2,7 +2,7 @@
 
 > A collection of precision measurement and alignment tools for frontend developers, living inside browser DevTools.
 
-**Version 0.10.1** | Chrome & Firefox | Manifest V3 | Zero dependencies
+**Version 0.13.0** | Chrome & Firefox | Manifest V3 | Zero dependencies
 
 ---
 
@@ -43,6 +43,9 @@ Configurable column grid rendered directly on the page. Adjust column count (1-4
 
 ### Breakpoint Presets
 Auto-scans page stylesheets for `min-width`/`max-width` media query values and displays them as quick-add guide buttons (up to 6). Falls back to standard defaults (320, 768, 1024, 1440px) with a visual indicator. Re-scan on demand with the refresh button.
+
+### Theme
+Switch panel chrome between **Beach Boy** (light), **Cave Man** (dark), or **Auto** (follows the OS `prefers-color-scheme`). Selection persists across DevTools sessions via `localStorage`. Theme buttons live in the toolbar **Theme** group.
 
 ---
 
@@ -190,7 +193,6 @@ All visual elements are injected into a single fixed-position container with `po
 
 ### Phase 4 — Polish & Integration
 - Keyboard shortcuts
-- DevTools theme matching (light/dark)
 - Guide grouping and locking
 - Undo/redo history
 - Unit toggle (px, rem, em, %)
